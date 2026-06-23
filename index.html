@@ -32,32 +32,49 @@ html{scroll-behavior:smooth;font-size:16px}
 body{font-family:var(--sans);color:var(--charcoal);background:var(--ivory);overflow-x:hidden}
 img{max-width:100%;display:block}
 a{text-decoration:none;color:inherit}
+/* ── NAVBAR ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:80px;transition:all .4s ease}
+nav.scrolled{background:rgba(7,42,32,.97);backdrop-filter:blur(12px);box-shadow:0 2px 40px rgba(0,0,0,.3)}
 
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:80px;transition:all 0.4s ease}
-nav.scrolled{background:rgba(7,42,32,0.97);backdrop-filter:blur(12px);box-shadow:0 2px 40px rgba(0,0,0,0.3)}
 .nav-logo{display:flex;align-items:center;gap:12px}
-.nav-logo-mark{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:20px;font-weight:600;color:var(--gold);
-/* RESPONSIVENESS FIX: prevent shrink on small screens */
-flex-shrink:0}
-.nav-logo-text{font-family:var(--serif);font-size:14px;color:var(--ivory);letter-spacing:0.05em;line-height:1.3}
-.nav-logo-text span{display:block;font-size:10px;font-weight:300;color:var(--gold-light);letter-spacing:0.12em;text-transform:uppercase}
-.nav-links{display:flex;align-items:center;gap:32px}
-.nav-links a{font-size:12px;font-weight:400;color:rgba(255,255,255,0.8);letter-spacing:0.1em;text-transform:uppercase;transition:color 0.3s}
-.nav-links a:hover{color:var(--gold)}
-.nav-cta{background:var(--gold);color:var(--emerald-deep);font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;padding:10px 24px;border-radius:2px;transition:all 0.3s}
-.nav-cta:hover{background:var(--gold-light);transform:translateY(-1px)}
-.nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;
-/* RESPONSIVENESS FIX: ensure tappable area on mobile */
-min-width:44px;min-height:44px;align-items:center;justify-content:center}
-.nav-hamburger span{display:block;width:24px;height:1.5px;background:var(--ivory);transition:all 0.3s}
+.nav-logo-mark{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:20px;font-weight:600;color:var(--gold);flex-shrink:0}
+/* If you have a logo image, use this instead of .nav-logo-mark + .nav-logo-text */
+.nav-logo-img{height:48px;width:auto;max-width:180px;object-fit:contain;display:block;flex-shrink:0}
+.nav-logo-text{font-family:var(--serif);font-size:14px;color:var(--ivory);letter-spacing:.05em;line-height:1.3}
+.nav-logo-text span{display:block;font-size:10px;font-weight:300;color:var(--gold-light);letter-spacing:.12em;text-transform:uppercase}
 
-/* RESPONSIVENESS FIX: Mobile nav overlay panel — was missing, only logic existed */
-.mobile-nav-panel{display:none;position:fixed;top:80px;left:0;right:0;bottom:0;background:rgba(7,42,32,0.98);backdrop-filter:blur(16px);z-index:999;padding:40px 5%;flex-direction:column;gap:0;overflow-y:auto}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{font-size:12px;font-weight:400;color:rgba(255,255,255,.8);letter-spacing:.1em;text-transform:uppercase;transition:color .3s}
+.nav-links a:hover{color:var(--gold)}
+
+.nav-cta{background:var(--gold);color:var(--emerald-deep);font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:10px 24px;border-radius:2px;transition:all .3s}
+.nav-cta:hover{background:var(--gold-light);transform:translateY(-1px)}
+
+.nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;min-width:44px;min-height:44px;align-items:center;justify-content:center}
+.nav-hamburger span{display:block;width:24px;height:1.5px;background:var(--ivory);transition:all .3s}
+
+/* ── MOBILE NAV PANEL ── */
+.mobile-nav-panel{display:none;position:fixed;top:80px;left:0;right:0;bottom:0;background:rgba(7,42,32,.98);backdrop-filter:blur(16px);z-index:999;padding:40px 5%;flex-direction:column;gap:0;overflow-y:auto}
 .mobile-nav-panel.open{display:flex}
-.mobile-nav-panel a{font-size:18px;font-weight:400;color:rgba(255,255,255,0.8);letter-spacing:0.08em;text-transform:uppercase;padding:18px 0;border-bottom:1px solid rgba(255,255,255,0.08);transition:color 0.3s;display:block}
+.mobile-nav-panel a{font-size:18px;font-weight:400;color:rgba(255,255,255,.8);letter-spacing:.08em;text-transform:uppercase;padding:18px 0;border-bottom:1px solid rgba(255,255,255,.08);display:block;transition:color .3s}
 .mobile-nav-panel a:hover{color:var(--gold)}
 .mobile-nav-panel .nav-cta{margin-top:24px;text-align:center;display:block;color:var(--emerald-deep)!important;border:none}
+
+/* ── RESPONSIVE BREAKPOINTS ── */
+@media(max-width:1199px){
+  .nav-links{gap:22px}
+}
+@media(max-width:768px){
+  nav{padding:0 4%}
+  .nav-links{display:none}
+  .nav-hamburger{display:flex}
+}
+@media(max-width:360px){
+  .nav-logo-text span{display:none}
+}
+
+/* demo filler so you can see the fixed nav scroll behavior */
+.demo-spacer{height:160vh;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-family:var(--sans);font-size:13px;letter-spacing:.1em;text-transform:uppercase}
 
 /* HERO */
 #hero{position:relative;height:100vh;min-height:700px;display:flex;align-items:center;overflow:hidden}
@@ -583,44 +600,101 @@ flex-wrap:wrap;gap:12px}
   #framework,#founder,#contact{background:var(--ivory)!important}
   .framework-card,.testi-card{border:1px solid rgba(0,0,0,0.1)!important;background:var(--ivory)!important}
 }
+
+
+/* ── Team── */
+
+
+/* ── SECTION HEADER (shared utility classes) ── */
+.section-eyebrow{font-family:var(--sans);font-size:10px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.section-eyebrow::before{content:'';display:block;width:28px;height:1px;background:var(--gold);flex-shrink:0}
+.section-title{font-family:var(--serif);font-size:clamp(2rem,3.5vw,3.2rem);font-weight:600;line-height:1.2;color:var(--emerald)}
+.section-subtitle{font-family:var(--sans);font-size:1rem;font-weight:300;line-height:1.75;color:var(--text-muted);max-width:580px}
+ 
+/* ── TEAM ── */
+#team{background:var(--ivory-warm)}
+.team-intro{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:60px;gap:40px}
+.team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
+ 
+.team-card{background:var(--ivory);border:1px solid rgba(11,61,46,.1);border-radius:4px;overflow:hidden;transition:all .4s ease}
+.team-card:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(11,61,46,.12);border-color:var(--gold)}
+ 
+.team-photo-wrap{width:100%;aspect-ratio:3/4;background:linear-gradient(160deg,var(--emerald-mid) 0%,var(--emerald-deep) 100%);position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
+.team-photo-wrap img.team-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;display:block;z-index:0}
+.team-photo-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(7,42,32,.55) 0%,transparent 55%);z-index:1;pointer-events:none}
+/* shown only when no photo is provided */
+.team-photo-initial{position:relative;z-index:2;font-family:var(--serif);font-size:3.5rem;font-weight:600;color:rgba(201,168,76,.5);padding-bottom:24px;line-height:1}
+.team-photo-wrap.has-photo .team-photo-initial{display:none}
+ 
+.team-body{padding:24px 22px}
+.team-name{font-family:var(--serif);font-size:1.15rem;font-weight:600;color:var(--emerald);line-height:1.25;margin-bottom:6px}
+.team-role{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;border-bottom:1px solid rgba(201,168,76,.2);padding-bottom:12px}
+.team-bio{font-family:var(--sans);font-size:.8rem;font-weight:300;line-height:1.7;color:var(--text-muted)}
+ 
+/* ── RESPONSIVE BREAKPOINTS ── */
+@media(max-width:1199px){
+  .team-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:1024px){
+  section{padding:80px 5%}
+  .team-grid{grid-template-columns:repeat(2,1fr)}
+  .team-intro{flex-direction:column;align-items:flex-start;gap:16px;margin-bottom:40px}
+}
+@media(max-width:768px){
+  section{padding:70px 5%}
+  .team-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .team-intro{flex-direction:column;align-items:flex-start;gap:16px;margin-bottom:36px}
+}
+@media(max-width:480px){
+  section{padding:56px 4%}
+  .section-title{font-size:clamp(1.7rem,6vw,2.2rem)}
+  .team-grid{grid-template-columns:1fr}
+  .team-body{padding:20px 18px}
+  .team-name{font-size:1.05rem}
+}
 </style>
 </head>
 <body>
 
 <!-- NAVIGATION -->
+
 <nav id="mainNav">
   <div class="nav-logo">
-    <div class="nav-logo-mark">R</div>
+    
+    <!-- Option A: logo image (set src and delete the fallback block below) -->
+    <img class="nav-logo-img" src="images/logo.jpg" alt="Brand name">
+
+    <!-- Option B: text-based fallback logo -->
+    <!-- <div class="nav-logo-mark">R</div>
     <div class="nav-logo-text">
-      RUACH Foundation
-      <span>for Capacity Building</span>
-    </div>
+      Brand Name
+      <span>Tagline goes here</span>
+    </div> -->
   </div>
+
   <div class="nav-links">
     <a href="#about">About</a>
     <a href="#programs">Programs</a>
-    <a href="#founder">Founder</a>
-    <a href="#events">Events</a>
-    <a href="#news">Insights</a>
+    <a href="#team">Team</a>
     <a href="#contact">Contact</a>
-    <a href="#donate" class="nav-cta">Give Now</a>
+    <a href="#donate" class="nav-cta">Donate</a>
   </div>
-  <!-- RESPONSIVENESS FIX: hamburger triggers mobile-nav-panel, not inline style manipulation -->
+
   <div class="nav-hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Open menu" aria-expanded="false">
     <span></span><span></span><span></span>
   </div>
 </nav>
 
-<!-- RESPONSIVENESS FIX: dedicated mobile nav panel (replaces inline-style approach that broke on iOS) -->
 <div class="mobile-nav-panel" id="mobileNav">
   <a href="#about" onclick="closeMenu()">About</a>
   <a href="#programs" onclick="closeMenu()">Programs</a>
-  <a href="#founder" onclick="closeMenu()">Founder</a>
-  <a href="#events" onclick="closeMenu()">Events</a>
-  <a href="#news" onclick="closeMenu()">Insights</a>
+  <a href="#team" onclick="closeMenu()">Team</a>
   <a href="#contact" onclick="closeMenu()">Contact</a>
-  <a href="#donate" class="nav-cta" onclick="closeMenu()">Give Now</a>
+  <a href="#donate" class="nav-cta" onclick="closeMenu()">Call To Action</a>
 </div>
+
+
+
 
 <!-- HERO -->
 <section id="hero">
@@ -1063,6 +1137,79 @@ flex-wrap:wrap;gap:12px}
     </div>
   </div>
 </section>
+
+     <!-- Meet team -->
+
+<section id="team">
+  <div class="team-intro">
+    <div>
+      <div class="section-eyebrow">The People Behind the Purpose</div>
+      <h2 class="section-title">Meet Our Team Members</h2>
+    </div>
+    <p class="section-subtitle">Each member of our team brings a wealth of experience, passion, and commitment to our mission.</p>
+  </div>
+ 
+  <div class="team-grid">
+ 
+    <!-- repeat this block for each team member -->
+    <div class="team-card">
+      <div class="team-photo-wrap" id="teamWrap1">
+        <!-- set src to show a real photo; leave empty to show the initial badge -->
+        <img class="team-photo" src="" alt="Full Name" loading="lazy" onerror="this.style.display='none'">
+        <div class="team-photo-initial">W</div>
+      </div>
+      <div class="team-body">
+        <h3 class="team-name">Winifred Ibrahim</h3>
+        <div class="team-role">Child Development Consultant</div>
+        <p class="team-bio">Over 20 years experience in child development, education, mentorship, and welfare.</p>
+      </div>
+    </div>
+ 
+    <div class="team-card">
+      <div class="team-photo-wrap" id="teamWrap2">
+        <img class="team-photo" src="images/Gladys.jpg" alt="Full Name" loading="lazy" onerror="this.style.display='none'">
+        <div class="team-photo-initial">G</div>
+      </div>
+      <div class="team-body">
+        <h3 class="team-name">Gladys M. Haruna</h3>
+        <div class="team-role">HR Manager &middot; Coordinator</div>
+        <p class="team-bio">Driven by service, growth, and community impact across multiple initiatives.</p>
+      </div>
+    </div>
+ 
+    <div class="team-card">
+      <div class="team-photo-wrap" id="teamWrap3">
+        <img class="team-photo" src="images/Ursula Eneh.jpeg" alt="Full Name" loading="lazy" onerror="this.style.display='none'">
+        <div class="team-photo-initial">U</div>
+      </div>
+      <div class="team-body">
+        <h3 class="team-name">Ursula Eneh</h3>
+        <div class="team-role">Human Resources Professional</div>
+        <p class="team-bio">6+ years in HR, recruitment, talent management, and organizational development.</p>
+      </div>
+    </div>
+ 
+    <div class="team-card">
+      <div class="team-photo-wrap" id="teamWrap4">
+        <img class="team-photo" src="images/cansadra.jpg" alt="Full Name" loading="lazy" onerror="this.style.display='none'">
+        <div class="team-photo-initial">C</div>
+      </div>
+      <div class="team-body">
+        <h3 class="team-name">Amb. Casandra Jaja C</h3>
+        <div class="team-role">Media &amp; Advocacy Lead</div>
+        <p class="team-bio">Filmmaker and social impact advocate using storytelling to amplify the mission.</p>
+      </div>
+    </div>
+ 
+  </div>
+</section>
+
+
+
+
+
+
+
 
 <!-- TESTIMONIALS -->
 <section id="testimonials">
@@ -1979,6 +2126,22 @@ document.querySelectorAll('.program-card,.stat-card,.framework-card,.event-card,
     iframe.style.display='none';
   }
 })();
+
+
+
+/* shows the photo and hides the initial badge once an image successfully loads */
+document.querySelectorAll('.team-card').forEach(function(card){
+  var img = card.querySelector('img.team-photo');
+  var wrap = card.querySelector('.team-photo-wrap');
+  if(!img || !wrap) return;
+  var src = img.getAttribute('src');
+  if(!src || src === ''){
+    img.style.display = 'none';
+  } else {
+    img.addEventListener('load', function(){ wrap.classList.add('has-photo'); });
+    img.addEventListener('error', function(){ img.style.display = 'none'; });
+  }
+});
 </script>
 </body>
 </html>
