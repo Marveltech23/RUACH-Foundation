@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -152,6 +151,20 @@ overflow:hidden}
 .stat-number{font-family:var(--serif);font-size:2.5rem;font-weight:600;color:var(--emerald);line-height:1}
 .stat-label{font-family:var(--sans);font-size:11px;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-top:6px}
 
+/* WHY RUACH / PHILOSOPHY (reuses about + framework component patterns) */
+#why-ruach{background:var(--ivory-warm)}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;margin-top:60px}
+.why-col .ruach-meaning{font-family:var(--serif);font-size:clamp(1.4rem,2.2vw,1.7rem);font-style:italic;font-weight:300;color:var(--emerald);line-height:1.5;margin-bottom:24px}
+.why-col .about-body{margin-bottom:24px}
+.philosophy-card{padding:32px;background:var(--ivory);border-radius:4px;border-left:3px solid var(--gold);margin-top:8px}
+.philosophy-card p{font-family:var(--sans);font-size:0.92rem;font-weight:300;line-height:1.85;color:var(--text-muted)}
+.philosophy-card p + p{margin-top:14px}
+.philosophy-card strong{color:var(--emerald);font-weight:500}
+
+@media(max-width:1024px){
+  .why-grid{grid-template-columns:1fr;gap:48px}
+}
+
 /* FRAMEWORK */
 #framework{background:var(--emerald-deep);overflow:hidden;position:relative}
 #framework::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(201,168,76,0.03) 0,rgba(201,168,76,0.03) 1px,transparent 0,transparent 50%);background-size:24px 24px}
@@ -211,6 +224,41 @@ position:relative;z-index:2}
 .btn-text{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--emerald);border-bottom:1px solid var(--gold);padding-bottom:2px;transition:all 0.3s;display:inline-flex;align-items:center;gap:8px;cursor:pointer}
 .btn-text:hover{color:var(--gold);gap:12px}
 .btn-text::after{content:'→'}
+
+/* ── Begin Your Journey ── */
+#journey{background:var(--emerald-deep);position:relative;overflow:hidden}
+#journey::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(201,168,76,.04) 0,rgba(201,168,76,.04) 1px,transparent 1px,transparent 22px)}
+#journey::after{content:'';position:absolute;right:-150px;top:-190px;width:500px;height:500px;border:1px solid rgba(201,168,76,.18);border-radius:50%;box-shadow:0 0 0 54px rgba(201,168,76,.035),0 0 0 108px rgba(201,168,76,.02)}
+.journey-grid{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);gap:80px;align-items:center;max-width:1240px;margin:0 auto}
+.journey-copy .section-eyebrow{color:var(--gold-light)}
+.journey-copy .section-title{color:var(--ivory);margin-bottom:22px}
+.journey-lead{font-family:var(--serif);font-size:clamp(1.45rem,2.1vw,1.8rem);font-weight:400;line-height:1.4;color:var(--gold-light);max-width:560px;margin-bottom:22px}
+.journey-body{font-family:var(--sans);font-size:1rem;font-weight:300;line-height:1.85;color:rgba(255,255,255,.67);max-width:620px}
+.journey-body + .journey-body{margin-top:18px}
+.journey-audiences{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:34px}
+.journey-audience{border:1px solid rgba(201,168,76,.28);padding:13px 10px;text-align:center;font-family:var(--sans);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.75)}
+.journey-declaration{background:var(--ivory);padding:50px 46px 46px;border-radius:4px;box-shadow:0 28px 70px rgba(0,0,0,.24);position:relative;overflow:hidden;border-top:4px solid var(--gold)}
+.journey-declaration::before{content:'“';position:absolute;top:-49px;right:22px;font-family:var(--serif);font-size:13rem;line-height:1;color:var(--gold-pale)}
+.declaration-label{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;position:relative}
+.declaration-title{font-family:var(--serif);font-size:clamp(1.9rem,2.8vw,2.55rem);font-weight:600;line-height:1.16;color:var(--emerald);margin-bottom:28px;position:relative}
+.declaration-lines{position:relative;border-left:2px solid var(--gold);padding-left:22px}
+.declaration-lines span{display:block;font-family:var(--serif);font-size:clamp(1.16rem,1.7vw,1.42rem);font-weight:400;line-height:1.55;color:var(--emerald)}
+.declaration-lines span:nth-last-child(2){font-family:var(--sans);font-size:.86rem;font-weight:300;line-height:1.75;color:var(--text-muted);margin-top:18px}
+.declaration-lines span:last-child{color:var(--gold);margin-top:14px}
+
+@media(max-width:1024px){
+  .journey-grid{grid-template-columns:1fr;gap:48px}
+}
+
+@media(max-width:768px){
+  .journey-declaration{padding:36px 28px}
+  .journey-audiences{max-width:480px}
+}
+
+@media(max-width:480px){
+  .journey-declaration{padding:30px 22px}
+  .journey-audiences{grid-template-columns:repeat(2,1fr)}
+}
 
 /* FOUNDER */
 #founder{background:var(--emerald-deep);position:relative;overflow:hidden}
@@ -652,6 +700,101 @@ flex-wrap:wrap;gap:12px}
   .team-body{padding:20px 18px}
   .team-name{font-size:1.05rem}
 }
+
+/* ── PROGRAM DETAIL PAGE (Queen Esther) — reuses all existing tokens/classes ── */
+.page-hero{position:relative;padding:180px 5% 100px;background:linear-gradient(135deg,var(--emerald-deep) 0%,var(--emerald) 40%,#1a4d38 70%,#0e3326 100%);overflow:hidden}
+.page-hero::before{content:'';position:absolute;inset:0;opacity:0.06;background-image:repeating-linear-gradient(45deg,var(--gold) 0,var(--gold) 1px,transparent 0,transparent 50%);background-size:20px 20px}
+.page-hero-inner{position:relative;z-index:2;max-width:820px}
+.breadcrumb{font-family:var(--sans);font-size:11px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:24px}
+.breadcrumb a{color:var(--gold);transition:color .3s}
+.breadcrumb a:hover{color:var(--gold-light)}
+.cert-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:60px}
+.cert-card{background:var(--ivory);border:1px solid rgba(11,61,46,.1);border-radius:4px;padding:40px 32px;transition:all .4s ease;position:relative;overflow:hidden}
+.cert-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--gold);transform:scaleX(0);transition:transform .4s ease}
+.cert-card:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(11,61,46,.1);border-color:var(--gold)}
+.cert-card:hover::after{transform:scaleX(1)}
+.cert-week{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:18px}
+.cert-title{font-family:var(--serif);font-size:1.5rem;font-weight:600;color:var(--emerald);margin-bottom:8px;line-height:1.3}
+.cert-tagline{font-family:var(--serif);font-style:italic;font-size:1rem;color:var(--text-muted);margin-bottom:20px}
+.cert-desc{font-family:var(--sans);font-size:.875rem;font-weight:300;line-height:1.75;color:var(--text-muted)}
+.workshop-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:40px}
+.workshop-card{background:var(--ivory-warm);border-left:3px solid var(--gold);border-radius:4px;padding:32px}
+.workshop-card h4{font-family:var(--serif);font-size:1.2rem;font-weight:600;color:var(--emerald);margin-bottom:10px}
+.workshop-card p{font-family:var(--sans);font-size:.875rem;font-weight:300;line-height:1.7;color:var(--text-muted)}
+.crowning-panel{background:var(--emerald-deep);border-radius:4px;padding:56px;margin-top:60px;position:relative;overflow:hidden}
+.crowning-panel::before{content:'';position:absolute;top:-80px;right:-80px;width:400px;height:400px;border-radius:50%;border:1px solid rgba(201,168,76,.1)}
+.crowning-panel .section-title{position:relative;z-index:2}
+.crowning-panel p{position:relative;z-index:2;font-family:var(--sans);font-size:.95rem;font-weight:300;line-height:1.85;color:rgba(255,255,255,.68);max-width:760px}
+.crowning-panel p + p{margin-top:18px}
+@media(max-width:1024px){
+  .cert-grid{grid-template-columns:1fr}
+  .workshop-grid{grid-template-columns:1fr}
+}
+@media(max-width:768px){
+  .page-hero{padding:140px 4% 70px}
+  .crowning-panel{padding:32px 24px}
+}
+
+/* ── GALLERY PAGE ── */
+.gallery-filters{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:50px}
+.gallery-filter-btn{font-family:var(--sans);font-size:11px;font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);padding:8px 22px;border:1px solid rgba(11,61,46,.15);border-radius:20px;cursor:pointer;transition:all .3s;background:transparent;min-height:40px;display:inline-flex;align-items:center}
+.gallery-filter-btn.active,.gallery-filter-btn:hover{background:var(--emerald);color:var(--ivory);border-color:var(--emerald)}
+.gallery-page-item{display:block}
+.gallery-page-item.hidden{display:none}
+.gallery-lightbox{display:none;position:fixed;inset:0;background:rgba(7,42,32,.96);z-index:2000;align-items:center;justify-content:center;padding:5%}
+.gallery-lightbox.open{display:flex}
+.gallery-lightbox-inner{position:relative;max-width:1000px;width:100%}
+.gallery-lightbox img{width:100%;max-height:80vh;object-fit:contain;border-radius:4px}
+.gallery-lightbox-caption{text-align:center;color:var(--ivory);font-family:var(--sans);font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin-top:20px}
+.gallery-lightbox-close{position:absolute;top:-50px;right:0;width:44px;height:44px;border:1px solid rgba(255,255,255,.3);border-radius:50%;color:var(--ivory);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;transition:all .3s}
+.gallery-lightbox-close:hover{border-color:var(--gold);color:var(--gold)}
+.gallery-lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);width:52px;height:52px;border:1px solid rgba(255,255,255,.3);border-radius:50%;color:var(--ivory);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;transition:all .3s}
+.gallery-lightbox-nav:hover{border-color:var(--gold);color:var(--gold)}
+.gallery-lightbox-prev{left:-70px}
+.gallery-lightbox-next{right:-70px}
+@media(max-width:900px){
+  .gallery-lightbox-prev{left:8px}
+  .gallery-lightbox-next{right:8px}
+  .gallery-lightbox-close{top:8px;right:8px}
+}
+
+
+
+
+/* ── Begin Your Journey ── */
+#journey{background:var(--emerald-deep);position:relative;overflow:hidden}
+#journey::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(201,168,76,.04) 0,rgba(201,168,76,.04) 1px,transparent 1px,transparent 22px)}
+#journey::after{content:'';position:absolute;right:-150px;top:-190px;width:500px;height:500px;border:1px solid rgba(201,168,76,.18);border-radius:50%;box-shadow:0 0 0 54px rgba(201,168,76,.035),0 0 0 108px rgba(201,168,76,.02)}
+.journey-grid{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);gap:80px;align-items:center;max-width:1240px;margin:0 auto}
+.journey-copy .section-eyebrow{color:var(--gold-light)}
+.journey-copy .section-title{color:var(--ivory);margin-bottom:22px}
+.journey-lead{font-family:var(--serif);font-size:clamp(1.45rem,2.1vw,1.8rem);font-weight:400;line-height:1.4;color:var(--gold-light);max-width:560px;margin-bottom:22px}
+.journey-body{font-family:var(--sans);font-size:1rem;font-weight:300;line-height:1.85;color:rgba(255,255,255,.67);max-width:620px}
+.journey-body + .journey-body{margin-top:18px}
+.journey-audiences{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:34px}
+.journey-audience{border:1px solid rgba(201,168,76,.28);padding:13px 10px;text-align:center;font-family:var(--sans);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.75)}
+.journey-declaration{background:var(--ivory);padding:50px 46px 46px;border-radius:4px;box-shadow:0 28px 70px rgba(0,0,0,.24);position:relative;overflow:hidden;border-top:4px solid var(--gold)}
+.journey-declaration::before{content:'“';position:absolute;top:-49px;right:22px;font-family:var(--serif);font-size:13rem;line-height:1;color:var(--gold-pale)}
+.declaration-label{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;position:relative}
+.declaration-title{font-family:var(--serif);font-size:clamp(1.9rem,2.8vw,2.55rem);font-weight:600;line-height:1.16;color:var(--emerald);margin-bottom:28px;position:relative}
+.declaration-lines{position:relative;border-left:2px solid var(--gold);padding-left:22px}
+.declaration-lines span{display:block;font-family:var(--serif);font-size:clamp(1.16rem,1.7vw,1.42rem);font-weight:400;line-height:1.55;color:var(--emerald)}
+.declaration-lines span:nth-last-child(2){font-family:var(--sans);font-size:.86rem;font-weight:300;line-height:1.75;color:var(--text-muted);margin-top:18px}
+.declaration-lines span:last-child{color:var(--gold);margin-top:14px}
+
+@media(max-width:1024px){
+  .journey-grid{grid-template-columns:1fr;gap:48px}
+}
+
+@media(max-width:768px){
+  .journey-declaration{padding:36px 28px}
+  .journey-audiences{max-width:480px}
+}
+
+@media(max-width:480px){
+  .journey-declaration{padding:30px 22px}
+  .journey-audiences{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 </head>
 <body>
@@ -676,6 +819,7 @@ flex-wrap:wrap;gap:12px}
     <a href="#about">About</a>
     <a href="#programs">Programs</a>
     <a href="#team">Team</a>
+    <a href="gallery.html">Gallery</a>
     <a href="#contact">Contact</a>
     <a href="#donate" class="nav-cta">Donate</a>
   </div>
@@ -689,6 +833,7 @@ flex-wrap:wrap;gap:12px}
   <a href="#about" onclick="closeMenu()">About</a>
   <a href="#programs" onclick="closeMenu()">Programs</a>
   <a href="#team" onclick="closeMenu()">Team</a>
+  <a href="gallery.html" onclick="closeMenu()">Gallery</a>
   <a href="#contact" onclick="closeMenu()">Contact</a>
   <a href="#donate" class="nav-cta" onclick="closeMenu()">Donate</a>
 </div>
@@ -729,7 +874,7 @@ flex-wrap:wrap;gap:12px}
            playsinline
            aria-hidden="true">
       <!-- ↓ UPDATE: replace with your video file path -->
-      <source src="/images/WhatsApp Video 2026-06-20 at 5.22.50 AM.mp4" type="video/mp4">
+      <source src="/images/WhatsApp Video 2026-06-20 at 5.22.50 AM.mp4" type="video/mp4">
       <source src="" type="video/webm">
     </video>
     <!-- HERO FALLBACK IMAGE — set src below to show a still image when no video is used -->
@@ -777,7 +922,7 @@ flex-wrap:wrap;gap:12px}
       <div class="about-img" id="aboutImgWrap">
         <!-- ↓ UPDATE: replace src with your portrait/story image path -->
         <img class="about-portrait"
-             src="images/WhatsApp Image 2026-06-20 at 5.22.48 AM (1).jpeg"
+             src="images/WhatsApp Image 2026-06-20 at 5.22.47 AM (3).jpeg"
              alt="RUACH Foundation story — portrait image"
              loading="lazy">
         <span>Portrait / Story Image</span>
@@ -789,9 +934,28 @@ flex-wrap:wrap;gap:12px}
       <div class="section-eyebrow">About RUACH</div>
       <p class="ruach-meaning">"רוּחַ — Breath. Spirit. Life Force."</p>
       <div class="gold-divider"></div>
-      <p class="about-body">RUACH is the ancient Hebrew word for breath — the invisible force that animates, restores, and transforms. We carry that name not as a label, but as a declaration of purpose. Every individual we serve is breathed into their potential.</p>
-      <p class="about-body">Founded on the conviction that Africa's next generation deserves more than opportunity — they deserve formation — RUACH Foundation exists to raise leaders of unshakeable character, refined presence, and transformational vision. We do not merely build skills; we cultivate significance.</p>
-      <p class="about-body">Through targeted programs, mentorship ecosystems, and community activation, we are equipping women, youth, and emerging leaders across Nigeria and beyond to occupy their rightful place in the story of national and global transformation.</p>
+      <p class="about-body">What if the greatest investment you ever made wasn’t in your
+career, your business, or your education—but in yourself?
+Imagine two builders constructing identical houses.
+The first spent all his time perfecting what everyone could see. Beautiful walls. Elegant
+windows. Impressive finishes. The house looked exceptional.
+The second builder spent most of his time on what no one could see. He reinforced the
+foundation, strengthened the structure, and ensured every hidden element was built to
+last.</p>
+      <p class="about-body">Then the storms came.
+The first house began to crack.
+The second stood firm.
+Life works much the same way.
+Many people spend years building careers, businesses, qualifications, and reputations
+while neglecting the very foundation that sustains them. Yet it is our identity, character,
+resilience, wisdom, and sense of purpose that determine whether we merely survive
+life’s challenges or rise above them.</p>
+      <p class="about-body">At Ruach Foundation for Capacity Building, we believe lasting transformation begins
+within.
+Before people can change their circumstances, they must first be transformed in their
+thinking, character, confidence, and purpose.
+That is why we exist.
+To transform lives by building capacity from the inside out.</p>
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-number">2,400+</div>
@@ -814,43 +978,75 @@ flex-wrap:wrap;gap:12px}
   </div>
 </section>
 
+<!-- WHY RUACH / OUR VISION / PHILOSOPHY (new section — added from updated content) -->
+<section id="why-ruach">
+  <div class="section-eyebrow">Our Vision &amp; Why We Exist</div>
+  <h2 class="section-title">Building Capacity From The Inside Out</h2>
+  <p class="section-subtitle">Transforming lives by building capacity from the inside out — creating a generation of individuals who are ethically grounded, socially confident, culturally aware and professionally refined.</p>
+  <div class="why-grid">
+    <div class="why-col">
+      <p class="ruach-meaning">Many people achieve academic success or professional recognition yet still struggle with confidence, character, leadership, and a clear sense of purpose.</p>
+      <p class="about-body">In a fast-paced and highly competitive world, knowledge and technical skills alone are no longer enough. At RUACH Foundation for Capacity Building, we believe lasting transformation begins within. True success is built on a foundation of identity, character, wisdom, resilience, and emotional intelligence.</p>
+      <p class="about-body">Born from a passion for community transformation that first found expression through JYF in Lokoja, RUACH was established to meet a growing need — not simply to educate people, but to develop the whole person. Because when people are transformed from the inside out, they become capable of transforming the world around them.</p>
+    </div>
+    <div class="why-col">
+      <div class="section-eyebrow">The RUACH Philosophy</div>
+      <div class="philosophy-card">
+        <p>We believe people experience lasting change when they grow from the inside out. Knowledge is important. Skills are valuable. But they become truly powerful when built upon a foundation of <strong>strong character, clear purpose, emotional resilience, and servant leadership.</strong></p>
+        <p>Our approach develops the whole person, preparing individuals not simply to achieve success, but to live lives of significance and lasting influence.</p>
+      </div>
+      <p class="about-body" style="margin-top:24px">Through values-driven mentoring, leadership development, etiquette, communication, and life skills, we equip individuals to become confident, ethical, emotionally intelligent, and purpose-driven leaders who positively influence their families, workplaces, and communities.</p>
+    </div>
+  </div>
+</section>
+
 <!-- RUACH FRAMEWORK -->
 <section id="framework">
   <div class="framework-header">
     <div class="section-eyebrow" style="justify-content:center">Our Foundation</div>
-    <h2 class="section-title light">The RUACH Framework</h2>
-    <p class="section-subtitle light" style="margin:0 auto">Five pillars that form the soul of every program, every interaction, and every life we touch.</p>
+    <h2 class="section-title light">The RUACH Journey</h2>
+    <p class="section-subtitle light" style="margin:0 auto">Transformation is a journey, not a moment. It happens through intentional growth, one
+step at a time. The Ruach Journey is our signature framework, guiding every individual
+through five purposeful stages of personal growth and leadership development.</p>
   </div>
   <div class="framework-grid">
     <div class="framework-card">
       <div class="framework-letter">R</div>
-      <div class="framework-icon">⚖️</div>
-      <div class="framework-word">Responsibility</div>
-      <p class="framework-desc">We cultivate a culture of accountability — to self, community, and the next generation. Responsibility is not a burden; it is a crown.</p>
+      <div class="framework-icon">🌤️</div>
+      <div class="framework-word">Restore Identity</div>
+      <p class="framework-desc">Every transformation begins with identity. We help people discover their worth, embrace their God-given value, and develop the confidence that comes from knowing who they are.</p>
     </div>
     <div class="framework-card">
       <div class="framework-letter">U</div>
-      <div class="framework-icon">🤝</div>
-      <div class="framework-word">Unity</div>
-      <p class="framework-desc">We build bridges across communities, cultures, and generations. In unity, the diverse voices of Africa find their most powerful collective expression.</p>
+      <div class="framework-icon">🔑</div>
+      <div class="framework-word">Unlock Potential</div>
+      <p class="framework-desc">Every person carries unique gifts and untapped abilities.
+We help individuals recognise, develop, and maximise their potential through learning,
+mentoring, and intentional growth.</p>
     </div>
     <div class="framework-card">
       <div class="framework-letter">A</div>
-      <div class="framework-icon">🌱</div>
-      <div class="framework-word">Advancement</div>
-      <p class="framework-desc">We equip individuals with skills, knowledge, and frameworks for continuous upward movement — professionally, personally, and nationally.</p>
+      <div class="framework-icon">🎯</div>
+      <div class="framework-word">Activate Purpose</div>
+      <p class="framework-desc">Purpose is more than discovering why you exist — it is choosing to live intentionally every day. We equip people to turn vision into meaningful action and passion into lasting impact.</p>
     </div>
     <div class="framework-card">
       <div class="framework-letter">C</div>
-      <div class="framework-icon">❤️</div>
-      <div class="framework-word">Compassion</div>
-      <p class="framework-desc">Transformation begins and ends with empathy. We lead with hearts open to human need and hands ready to serve without conditions.</p>
+      <div class="framework-icon">🌱</div>
+      <div class="framework-word">Cultivate Character</div>
+      <p class="framework-desc">Character is the foundation upon which lasting influence is built.
+We intentionally develop integrity, humility, resilience, emotional intelligence, discipline,
+compassion, and excellence—qualities that enable people to lead with credibility and
+serve with authenticity.</p>
     </div>
     <div class="framework-card">
       <div class="framework-letter">H</div>
       <div class="framework-icon">👑</div>
-      <div class="framework-word">Honour</div>
-      <p class="framework-desc">We hold ourselves to the highest standard of integrity. Honour is both the seed we plant and the harvest we expect in every leader we raise.</p>
+      <div class="framework-word">Harness Influence</div>
+      <p class="framework-desc">Influence is one of life’s greatest responsibilities.
+We prepare individuals to use their gifts, knowledge, and character to strengthen
+families, inspire organisations, serve communities, and leave a legacy that extends
+beyond their own generation.</p>
     </div>
   </div>
 </section>
@@ -878,7 +1074,16 @@ flex-wrap:wrap;gap:12px}
   <div class="gallery-header">
     <div class="section-eyebrow">Impact in Motion</div>
     <h2 class="section-title">Moments That Define a Movement</h2>
+        <p class="section-subtitle">We believe one transformed life can transform many others.
+When people discover who they are, they grow in confidence. As confidence grows,
+potential is unlocked, purpose is activated, and influence begins to spread.
+That influence strengthens families, shapes workplaces, inspires communities, and
+contributes to transforming nations.
+Every programme at Ruach Foundation exists for one purpose: to raise people of
+character, purpose, and influence who leave every place better than they found it.</p>
+
   </div>
+  
   <div class="masonry">
 
     <!-- Gallery Item 1 — Leadership Conference -->
@@ -898,7 +1103,7 @@ flex-wrap:wrap;gap:12px}
     <div class="masonry-item">
       <div class="img-ph">
         <!-- ↓ UPDATE: replace src with your image path -->
-        <img class="gallery-img" src="images/WhatsApp Image 2026-06-20 at 5.22.48 AM (2).jpeg" alt="Women Empowerment" loading="lazy">
+        <img class="gallery-img" src="images/WhatsApp Image 2026-06-20 at 5.22.47 AM (4).jpeg" alt="Women Empowerment" loading="lazy">
         <span class="masonry-label">Women Empowerment</span>
       </div>
     </div>
@@ -925,7 +1130,7 @@ flex-wrap:wrap;gap:12px}
     <div class="masonry-item">
       <div class="img-ph">
         <!-- ↓ UPDATE: replace src with your image path -->
-        <img class="gallery-img" src="images/WhatsApp Image 2026-06-20 at 5.22.47 AM (4).jpeg" alt="Workshop Session" loading="lazy">
+        <img class="gallery-img" src="images/WhatsApp Image 2026-06-20 at 5.22.47 AM (3).jpeg" alt="Workshop Session" loading="lazy">
         <span class="masonry-label">Workshop Session</span>
       </div>
     </div>
@@ -967,6 +1172,9 @@ flex-wrap:wrap;gap:12px}
     </div>
 
   </div>
+  <div style="text-align:center;margin-top:50px">
+    <a href="gallery.html" class="btn-outline" style="border-color:rgba(11,61,46,.2);color:var(--emerald)">View Full Gallery</a>
+  </div>
 </section>
 
 <!-- PROGRAMS -->
@@ -996,7 +1204,7 @@ flex-wrap:wrap;gap:12px}
     <!-- Program 1 — Queen Esther Finishing School -->
     <div class="program-card">
       <div class="program-img">
-        <div class="program-tag">Women Development</div>
+        <div class="program-tag">Women &amp; Men Development</div>
         <!-- ↓ UPDATE: replace src with your program image path -->
         <img class="program-photo"
              src="images/leadership.jpeg"
@@ -1005,8 +1213,8 @@ flex-wrap:wrap;gap:12px}
       </div>
       <div class="program-body">
         <h3 class="program-title">Queen Esther Finishing School</h3>
-        <p class="program-desc">An intensive finishing and leadership formation program designed to refine the whole woman — professionally polished, spiritually grounded, socially confident, and strategically positioned for maximum impact in every room she enters.</p>
-        <a class="btn-text">Learn More</a>
+        <p class="program-desc">Crowned by Character, Known by Excellence. Inspired by Esther's journey of preparation before promotion, this flagship programme equips participants with the character, confidence, emotional intelligence, communication skills, etiquette, and sense of purpose to thrive in every sphere of life.</p>
+        <a class="btn-text" href="queen-esther.html">Learn More</a>
       </div>
     </div>
 
@@ -1061,6 +1269,33 @@ flex-wrap:wrap;gap:12px}
       </div>
     </div>
 
+  </div>
+</section>
+
+
+<!-- BEGIN YOUR JOURNEY -->
+<section id="journey">
+  <div class="journey-grid">
+    <div class="journey-copy">
+      <div class="section-eyebrow">Your Next Chapter</div>
+      <h2 class="section-title">Begin Your Journey</h2>
+      <p class="journey-body">Whatever stage of life you are in, your greatest potential may still lie ahead.</p>
+      <p class="journey-body">Whether you are a young person discovering your future, a professional seeking greater purpose, a parent shaping the next generation, an organisation investing in its people, or a partner committed to creating lasting social impact, your journey can begin today.</p>
+      <p class="journey-body">Together, let us build people who build families, strengthen communities, and transform nations.</p>
+    </div>
+    <aside class="journey-declaration" aria-labelledby="declaration-title">
+      <div class="declaration-label">Our Signature Declaration</div>
+      <h3 class="declaration-title" id="declaration-title">We don’t just build skills—we build people.</h3>
+      <div class="declaration-lines">
+        <span>We restore identity.</span>
+        <span>We unlock potential.</span>
+        <span>We activate purpose.</span>
+        <span>We cultivate character.</span>
+        <span>We harness influence.</span>
+        <span>Through The Ruach Journey, we are transforming lives by building capacity from the inside out.</span>
+        <span>Because transformed people transform lives.</span>
+      </div>
+    </aside>
   </div>
 </section>
 
@@ -1155,13 +1390,13 @@ flex-wrap:wrap;gap:12px}
     <div class="team-card">
       <div class="team-photo-wrap" id="teamWrap1">
         <!-- set src to show a real photo; leave empty to show the initial badge -->
-        <img class="team-photo" src="" alt="Full Name" loading="lazy" onerror="this.style.display='none'">
+        <img class="team-photo" src="/images/ogechi.JPG" alt="Full Name" loading="lazy" onerror="this.style.display='none'">
         <div class="team-photo-initial">W</div>
       </div>
       <div class="team-body">
-        <h3 class="team-name">Winifred Ibrahim</h3>
-        <div class="team-role">Child Development Consultant</div>
-        <p class="team-bio">Over 20 years experience in child development, education, mentorship, and welfare.</p>
+        <h3 class="team-name">Ogechukwu Jennifer Egwuchukwu</h3>
+        <div class="team-role">Head of content</div>
+        <!-- <p class="team-bio">Over 20 years experience in child development, education, mentorship, and welfare.</p> -->
       </div>
     </div>
  
@@ -1172,7 +1407,7 @@ flex-wrap:wrap;gap:12px}
       </div>
       <div class="team-body">
         <h3 class="team-name">Gladys M. Haruna</h3>
-        <div class="team-role">HR Manager &middot; Coordinator</div>
+        <div class="team-role">Head of Media</div>
         <p class="team-bio">Driven by service, growth, and community impact across multiple initiatives.</p>
       </div>
     </div>
@@ -1641,6 +1876,7 @@ flex-wrap:wrap;gap:12px}
       When src is empty ("") the emerald gradient shows.
     ═══════════════════════════════════════════════════════════════════
   -->
+
   <div class="news-grid">
 
     <!-- News Article 1 — Featured -->
@@ -1648,7 +1884,7 @@ flex-wrap:wrap;gap:12px}
       <div class="news-img">
         <!-- ↓ UPDATE: replace src with your article featured image path -->
         <img class="news-photo"
-             src=""
+             src="images/blog1.png"
              alt="Why Africa's Leadership Crisis Is Actually a Character Crisis"
              loading="lazy">
       </div>
@@ -1665,7 +1901,7 @@ flex-wrap:wrap;gap:12px}
       <div class="news-img">
         <!-- ↓ UPDATE: replace src with your article image path -->
         <img class="news-photo"
-             src=""
+             src="images/queenesther blog.png"
              alt="The Queen Esther Effect"
              loading="lazy">
       </div>
@@ -1682,7 +1918,7 @@ flex-wrap:wrap;gap:12px}
       <div class="news-img">
         <!-- ↓ UPDATE: replace src with your article image path -->
         <img class="news-photo"
-             src=""
+             src="images/blog3.png"
              alt="Raising Builders, Not Just Workers"
              loading="lazy">
       </div>
@@ -1715,7 +1951,7 @@ flex-wrap:wrap;gap:12px}
           <div class="contact-item-icon" style="color:var(--gold)">📞</div>
           <div class="contact-item-text">
             <span>Phone</span>
-            <p>+234 (0) 000 000 0000</p>
+            <p>+234 07013124650</p>
           </div>
         </div>
         <div class="contact-item">
@@ -1726,6 +1962,7 @@ flex-wrap:wrap;gap:12px}
           </div>
         </div>
       </div>
+
       <!--
         ═══════════════════════════════════════════════════════════════════
         MEDIA LOCATION 10 — GOOGLE MAPS EMBED
@@ -1743,6 +1980,7 @@ flex-wrap:wrap;gap:12px}
           When src is set the real map renders inside the same container.
         ═══════════════════════════════════════════════════════════════════
       -->
+
       <div class="map-embed" id="mapEmbed">
         <!-- ↓ UPDATE: replace src with your Google Maps embed URL -->
         <iframe class="map-iframe"
@@ -1797,7 +2035,7 @@ flex-wrap:wrap;gap:12px}
     <div class="footer-col">
       <h4>Programs</h4>
       <ul>
-        <li><a href="#">Queen Esther Finishing School</a></li>
+        <li><a href="queen-esther.html">Queen Esther Finishing School</a></li>
         <li><a href="#">Deborah Development Program</a></li>
         <li><a href="#">Community Outreach</a></li>
         <li><a href="#">R-CAH</a></li>
@@ -1806,21 +2044,21 @@ flex-wrap:wrap;gap:12px}
     <div class="footer-col">
       <h4>Foundation</h4>
       <ul>
-        <li><a href="#">About RUACH</a></li>
-        <li><a href="#">Our Framework</a></li>
-        <li><a href="#">Founder's Story</a></li>
-        <li><a href="#">Impact Report</a></li>
-        <li><a href="#">Partners</a></li>
+        <li><a href="#about">About RUACH</a></li>
+        <li><a href="#framework">Our Framework</a></li>
+        <li><a href="#founder">Founder's Story</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="#partners">Partners</a></li>
       </ul>
     </div>
     <div class="footer-col">
       <h4>Get Involved</h4>
       <ul>
-        <li><a href="#">Give Now</a></li>
-        <li><a href="#">Volunteer</a></li>
-        <li><a href="#">Events</a></li>
+        <li><a href="#donate">Give Now</a></li>
+        <li><a href="#partners">Volunteer</a></li>
+        <li><a href="#events">Events</a></li>
         <li><a href="#">Careers</a></li>
-        <li><a href="#">Contact</a></li>
+        <li><a href="#contact">Contact</a></li>
       </ul>
     </div>
   </div>
@@ -2145,5 +2383,3 @@ document.querySelectorAll('.team-card').forEach(function(card){
 </script>
 </body>
 </html>
-
-
