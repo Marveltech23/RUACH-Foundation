@@ -2409,6 +2409,10 @@ document.querySelectorAll('.team-card').forEach(function(card){
     img.addEventListener('error', function(){ img.style.display = 'none'; });
   }
 });
+
+
+
+
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════════════
@@ -2419,6 +2423,74 @@ document.querySelectorAll('.team-card').forEach(function(card){
      hardcoded content above stays exactly as-is. No other markup,
      styling, or behavior on this page was changed.
      ═══════════════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  const API_BASE_URL = 'https://ruach-backend-td82.onrender.com';
+
+  function fmtLongDate(dateStr) {
+    return dateStr ? new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+  }
+
+  async function fetchWithTimeout(url, ms = 25000) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), ms);
+    try {
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timer);
+      return res;
+    } catch (err) {
+      clearTimeout(timer);
+      throw err;
+    }
+  }
+
+  async function loadHomeNews() {
+    const grid = document.getElementById('newsGrid');
+    if (!grid) return;
+
+    try {
+      const res = await fetchWithTimeout(`${API_BASE_URL}/api/v1/blog?published=true`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error('Blog API error:', res.status, data);
+        throw new Error(data.message || `Server returned ${res.status}`);
+      }
+
+      const posts = (data.data || []).slice(0, 3);
+      if (!posts.length) return; // keep hardcoded fallback markup as-is
+
+      grid.innerHTML = posts.map((p, i) => `
+        <div class="news-card${i === 0 ? ' news-featured' : ''}" onclick="window.location.href='blog-post.html?slug=${encodeURIComponent(p.slug)}'">
+          <div class="news-img"><img class="news-photo" src="${p.featured_image_url || ''}" alt="${p.title}"></div>
+          <div class="news-body">
+            <div class="news-category">${p.category || ''}</div>
+            <h3 class="news-title">${p.title}</h3>
+            <p class="news-excerpt">${p.excerpt || ''}</p>
+            <div class="news-meta">${p.author || ''} · ${fmtLongDate(p.published_at)}</div>
+          </div>
+        </div>
+      `).join('');
+
+      // re-apply the show/hide logic for news-photo images on the new cards
+      grid.querySelectorAll('img.news-photo').forEach(function(img){
+        if (!img.getAttribute('src') || img.getAttribute('src') === '') {
+          img.style.display = 'none';
+        } else {
+          img.addEventListener('error', function(){ img.style.display = 'none'; });
+        }
+      });
+    } catch (err) {
+      console.error('loadHomeNews failed:', err);
+      // silently keep the original hardcoded 3 articles as fallback
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadHomeNews);
+})();
+</script>
+
+     
 <script src="js/api.js" defer></script>
 </body>
 </html>
