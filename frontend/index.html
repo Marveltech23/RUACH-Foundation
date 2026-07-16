@@ -2426,6 +2426,8 @@ document.querySelectorAll('.team-card').forEach(function(card){
 <script>
 (function(){
   const API_BASE_URL = 'https://ruach-backend-td82.onrender.com';
+  let lastGoodHTML = null;
+  let applyingOwnUpdate = false;
 
   function fmtLongDate(dateStr) {
     return dateStr ? new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
@@ -2444,6 +2446,25 @@ document.querySelectorAll('.team-card').forEach(function(card){
     }
   }
 
+  function bindImageFallbacks(grid) {
+    grid.querySelectorAll('img.news-photo').forEach(function(img){
+      if (!img.getAttribute('src') || img.getAttribute('src') === '') {
+        img.style.display = 'none';
+      } else {
+        img.addEventListener('error', function(){ img.style.display = 'none'; });
+      }
+    });
+  }
+
+  function applyHTML(grid, html) {
+    applyingOwnUpdate = true;
+    lastGoodHTML = html;
+    grid.innerHTML = html;
+    bindImageFallbacks(grid);
+    // release the lock after the DOM settles
+    setTimeout(function(){ applyingOwnUpdate = false; }, 50);
+  }
+
   async function loadHomeNews() {
     const grid = document.getElementById('newsGrid');
     if (!grid) return;
@@ -2460,7 +2481,7 @@ document.querySelectorAll('.team-card').forEach(function(card){
       const posts = (data.data || []).slice(0, 3);
       if (!posts.length) return; // keep hardcoded fallback markup as-is
 
-      grid.innerHTML = posts.map((p, i) => `
+      const html = posts.map((p, i) => `
         <div class="news-card${i === 0 ? ' news-featured' : ''}" onclick="window.location.href='blog-post.html?slug=${encodeURIComponent(p.slug)}'">
           <div class="news-img"><img class="news-photo" src="${p.featured_image_url || ''}" alt="${p.title}"></div>
           <div class="news-body">
@@ -2472,14 +2493,23 @@ document.querySelectorAll('.team-card').forEach(function(card){
         </div>
       `).join('');
 
-      // re-apply the show/hide logic for news-photo images on the new cards
-      grid.querySelectorAll('img.news-photo').forEach(function(img){
-        if (!img.getAttribute('src') || img.getAttribute('src') === '') {
-          img.style.display = 'none';
-        } else {
-          img.addEventListener('error', function(){ img.style.display = 'none'; });
+      applyHTML(grid, html);
+
+      // ── Guard: if any other script later overwrites #newsGrid
+      // (e.g. js/api.js re-rendering without images), restore our version.
+      const observer = new MutationObserver(function(){
+        if (applyingOwnUpdate) return; // ignore mutations we caused ourselves
+        if (!lastGoodHTML) return;
+        const currentImgs = grid.querySelectorAll('img.news-photo');
+        const stillHasRealImages = Array.from(currentImgs).some(function(img){
+          return img.getAttribute('src') && img.getAttribute('src') !== '';
+        });
+        if (!stillHasRealImages) {
+          applyHTML(grid, lastGoodHTML);
         }
       });
+      observer.observe(grid, { childList: true, subtree: true });
+
     } catch (err) {
       console.error('loadHomeNews failed:', err);
       // silently keep the original hardcoded 3 articles as fallback
