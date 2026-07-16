@@ -4,7 +4,7 @@
    ══════════════════════════════════════════════════════════════════ */
 
 // ↓ UPDATE this to your deployed backend URL once live on Render.
-const API_BASE_URL = 'https://your-app.onrender.com';
+const API_BASE_URL = 'https://ruach-backend-td82.onrender.com';
 
 async function apiGet(path) {
   const res = await fetch(`${API_BASE_URL}/api/v1${path}`);
@@ -54,30 +54,42 @@ async function loadGallery() {
 
 /* ── BLOG / NEWS: rebuild .news-card nodes, each clickable through to a full article page ── */
 async function loadNews() {
-  const grid = document.getElementById('newsGrid');
-  if (!grid) return;
-  try {
-    const posts = await apiGet('/blog?published=true');
-    if (!posts.length) return;
-    const [featured, ...rest] = posts;
+    console.log("loadNews() called");
 
-    const cardHtml = (p, featuredClass) => `
-      <div class="news-card ${featuredClass}" onclick="window.location.href='blog-post.html?slug=${encodeURIComponent(p.slug)}'">
-        <div class="news-img"><img class="news-photo" src="${p.featured_image_url || ''}" alt="${p.title}"></div>
-        <div class="news-body">
-          <div class="news-category">${p.category || ''}</div>
-          <h3 class="news-title">${p.title}</h3>
-          <p class="news-excerpt">${p.excerpt || ''}</p>
-          <div class="news-meta">${p.author || ''} · ${fmtLongDate(p.published_at)}</div>
-        </div>
-      </div>`;
+    const grid = document.getElementById("newsGrid");
+    console.log("grid =", grid);
 
-    const featuredCard = cardHtml(featured, 'news-featured');
-    const restCards = rest.slice(0, 2).map(p => cardHtml(p, '')).join('');
-    grid.innerHTML = featuredCard + restCards;
-  } catch (err) { console.error('News load failed:', err); }
+    if (!grid) {
+        console.error("newsGrid not found");
+        return;
+    }
+
+    try {
+        const posts = await apiGet("/blog?published=true");
+
+        console.log("posts =", posts);
+
+        if (!posts.length) {
+            console.log("No posts");
+            return;
+        }
+
+        const [featured, ...rest] = posts;
+
+        const cardHtml = (p, featuredClass = "") => `
+            <div class="news-card ${featuredClass}">
+                <h3>${p.title}</h3>
+            </div>
+        `;
+
+        grid.innerHTML =
+            cardHtml(featured, "news-featured") +
+            rest.slice(0,2).map(cardHtml).join("");
+
+    } catch(err){
+        console.error(err);
+    }
 }
-
 /* ── EVENTS: rebuild .event-card nodes + wire "Register Now" ── */
 async function loadEvents() {
   const grid = document.getElementById('eventsGrid');

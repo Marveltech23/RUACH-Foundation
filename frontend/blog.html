@@ -1024,20 +1024,39 @@ document.querySelectorAll('.program-card,.stat-card,.framework-card,.event-card,
 </script>
 
 <script>
-const API_BASE_URL = 'https://ruach-backend-td82.onrender.com'; // ↓ UPDATE to your deployed backend URL
+const API_BASE_URL = 'https://ruach-backend-td82.onrender.com';
 
 function fmtLongDate(dateStr) {
   return dateStr ? new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 }
 
+async function fetchWithTimeout(url, ms = 25000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timer);
+    return res;
+  } catch (err) {
+    clearTimeout(timer);
+    throw err;
+  }
+}
+
 async function loadBlogList() {
   const grid = document.getElementById('blogListGrid');
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/blog?published=true`);
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Failed to load articles.');
-    const posts = data.data;
+  grid.innerHTML = '<div class="blog-empty">Waking up server… this can take up to a minute on first load.</div>';
 
+  try {
+    const res = await fetchWithTimeout(`${API_BASE_URL}/api/v1/blog?published=true`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error('Blog API error:', res.status, data);
+      throw new Error(data.message || `Server returned ${res.status}`);
+    }
+
+    const posts = data.data || [];
     if (!posts.length) {
       grid.innerHTML = '<div class="blog-empty">No articles published yet. Check back soon.</div>';
       return;
@@ -1055,8 +1074,12 @@ async function loadBlogList() {
       </div>
     `).join('');
   } catch (err) {
-    grid.innerHTML = '<div class="blog-empty">Could not load articles right now.</div>';
-    console.error(err);
+    console.error('loadBlogList failed:', err);
+    if (err.name === 'AbortError') {
+      grid.innerHTML = '<div class="blog-empty">The server is taking too long to respond. Please refresh in a moment.</div>';
+    } else {
+      grid.innerHTML = '<div class="blog-empty">Could not load articles right now. (' + err.message + ')</div>';
+    }
   }
 }
 
