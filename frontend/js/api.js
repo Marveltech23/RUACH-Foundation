@@ -35,25 +35,106 @@ function fmtLongDate(dateStr) {
   return dateStr ? new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   BROWSER CACHE (added)
+   - Returning visitors see the last saved gallery / news / events
+     instantly, without waiting for the Render server to wake up.
+   - The server is only asked again when the saved copy is older than
+     CACHE_MINUTES. If something changed (e.g. a new image was added),
+     the page updates itself.
+   - Change CACHE_MINUTES to control how quickly new uploads appear.
+   ══════════════════════════════════════════════════════════════════ */
+const CACHE_MINUTES = 5;
+
+function readCache(key) {
+  try {
+    const raw = localStorage.getItem('ruach:' + key);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+function writeCache(key, data) {
+  try { localStorage.setItem('ruach:' + key, JSON.stringify({ t: Date.now(), data })); } catch (e) {}
+}
+function clearCache(key) {
+  try { localStorage.removeItem('ruach:' + key); } catch (e) {}
+}
+
+async function cachedGet(key, path, render) {
+  const cached = readCache(key);
+  let shown = null;
+
+  // 1. Show the saved copy straight away
+  if (cached && Array.isArray(cached.data) && cached.data.length) {
+    render(cached.data);
+    shown = JSON.stringify(cached.data);
+    // Saved copy is still fresh: don't bother the server at all
+    if (Date.now() - cached.t < CACHE_MINUTES * 60 * 1000) return;
+  }
+
+  // 2. Ask the server (in the background if something was already shown)
+  const fresh = await apiGet(path);
+  if (!fresh.length) { clearCache(key); return; } // keep existing placeholder content if nothing uploaded yet
+  writeCache(key, fresh);
+
+  // 3. Only redraw if something actually changed
+  if (JSON.stringify(fresh) !== shown) render(fresh);
+}
+
 /* ── GALLERY: rebuild .masonry-item nodes using existing markup/classes ── */
-async function loadGallery() {
+function renderGallery(images) {
   const grid = document.getElementById('galleryGrid');
   if (!grid) return;
-  try {
-    const images = await apiGet('/gallery');
-    if (!images.length) return; // keep existing placeholder content if nothing uploaded yet
-    grid.innerHTML = images.map(img => `
+  grid.classList.remove('is-loading'); // reveal the grid now that real images are ready
+  grid.innerHTML = images.map(img => `
       <div class="masonry-item">
         <div class="img-ph">
-          <img class="gallery-img" src="${img.image_url}" alt="${img.title || ''}" loading="lazy">
+          <img class="gallery-img" src="${img.image_url}" alt="${img.title || ''}" loading="lazy" decoding="async">
           <span class="masonry-label">${img.title || ''}</span>
         </div>
       </div>
     `).join('');
-  } catch (err) { console.error('Gallery load failed:', err); }
+}
+
+async function loadGallery() {
+  const grid = document.getElementById('galleryGrid');
+  if (!grid) return;
+
+  // First-time visitor (nothing saved yet): the grid stays hidden and the
+  // "Loading gallery…" box shows instead of the static placeholder images.
+  const loaderText = document.getElementById('galleryLoaderText');
+  const slowTimer = setTimeout(() => {
+    if (loaderText) loaderText.textContent = 'Still loading… the server is waking up, this can take up to a minute.';
+  }, 6000);
+
+  try {
+    await cachedGet('gallery', '/gallery', renderGallery);
+  } catch (err) {
+    console.error('Gallery load failed:', err);
+  } finally {
+    clearTimeout(slowTimer);
+    // If the server failed or returned nothing, fall back to the static images already in the HTML
+    grid.classList.remove('is-loading');
+  }
 }
 
 /* ── BLOG / NEWS: rebuild .news-card nodes, each clickable through to a full article page ── */
+function renderNews(posts) {
+  const grid = document.getElementById("newsGrid");
+  if (!grid) return;
+
+  const [featured, ...rest] = posts;
+
+  const cardHtml = (p, featuredClass = "") => `
+            <div class="news-card ${featuredClass}">
+                <h3>${p.title}</h3>
+            </div>
+        `;
+
+  grid.innerHTML =
+    cardHtml(featured, "news-featured") +
+    rest.slice(0, 2).map(cardHtml).join("");
+}
+
 async function loadNews() {
     console.log("loadNews() called");
 
@@ -66,42 +147,20 @@ async function loadNews() {
     }
 
     try {
-        const posts = await apiGet("/blog?published=true");
-
-        console.log("posts =", posts);
-
-        if (!posts.length) {
-            console.log("No posts");
-            return;
-        }
-
-        const [featured, ...rest] = posts;
-
-        const cardHtml = (p, featuredClass = "") => `
-            <div class="news-card ${featuredClass}">
-                <h3>${p.title}</h3>
-            </div>
-        `;
-
-        grid.innerHTML =
-            cardHtml(featured, "news-featured") +
-            rest.slice(0,2).map(cardHtml).join("");
-
+        await cachedGet('news', "/blog?published=true", renderNews);
     } catch(err){
         console.error(err);
     }
 }
+
 /* ── EVENTS: rebuild .event-card nodes + wire "Register Now" ── */
-async function loadEvents() {
+function renderEvents(events) {
   const grid = document.getElementById('eventsGrid');
   if (!grid) return;
-  try {
-    const events = await apiGet('/events?published=true');
-    if (!events.length) return;
-    grid.innerHTML = events.map(e => `
+  grid.innerHTML = events.map(e => `
       <div class="event-card">
         <div class="event-img">
-          <img class="event-banner" src="${e.banner_url || ''}" alt="${e.title}">
+          <img class="event-banner" src="${e.banner_url || ''}" alt="${e.title}" decoding="async">
           <div class="event-date-badge"><span class="day">${fmtDay(e.event_date)}</span><span class="month">${fmtMonth(e.event_date)}</span></div>
         </div>
         <div class="event-body">
@@ -114,6 +173,13 @@ async function loadEvents() {
         </div>
       </div>
     `).join('');
+}
+
+async function loadEvents() {
+  const grid = document.getElementById('eventsGrid');
+  if (!grid) return;
+  try {
+    await cachedGet('events', '/events?published=true', renderEvents);
   } catch (err) { console.error('Events load failed:', err); }
 }
 
