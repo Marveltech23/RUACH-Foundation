@@ -7,6 +7,9 @@
 
 const API_BASE_URL = 'https://ruach-backend-td82.onrender.com';
 
+// Wake the Render server as early as possible (response is ignored)
+fetch(`${API_BASE_URL}/api/v1/gallery`, { mode: 'no-cors' }).catch(() => {});
+
 async function apiGet(path) {
   const res = await fetch(`${API_BASE_URL}/api/v1${path}`);
   const data = await res.json();
