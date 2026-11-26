@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog Manager — RUACH Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="admin-mobile-bar" id="adminMobileBar"></div>
+<div class="admin-shell">
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <div>
+        <div class="admin-eyebrow">News &amp; Insights</div>
+        <h1 class="admin-title">Blog Manager</h1>
+      </div>
+      <a href="../blog.html" target="_blank" class="btn btn-outline">Preview Public Blog ↗</a>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title" id="blogFormHeading">Create New Article</h2>
+        <button type="button" id="cancelEditBtn" class="btn btn-outline btn-sm" style="display:none" onclick="resetForm()">Cancel Edit</button>
+      </div>
+      <form id="blogForm">
+        <input type="hidden" id="blogId">
+        <div class="form-grid">
+          <div class="field">
+            <label for="blogTitle">Article Title *</label>
+            <input type="text" id="blogTitle" required placeholder="Enter headline...">
+          </div>
+          <div class="field">
+            <label for="blogSlug">URL Slug *</label>
+            <input type="text" id="blogSlug" required placeholder="auto-generated-from-title">
+          </div>
+          <div class="field">
+            <label for="blogCategory">Category</label>
+            <select id="blogCategory">
+              <option>Leadership</option>
+              <option>Women Development</option>
+              <option>Youth Empowerment</option>
+              <option>Community Impact</option>
+              <option>Capacity Building</option>
+              <option>Announcements</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="blogAuthor">Author</label>
+            <input type="text" id="blogAuthor" value="RUACH Editorial" placeholder="e.g. Mrs. Nnasha Michael-Ihunde">
+          </div>
+          <div class="field">
+            <label for="blogFile">Upload Cover Image</label>
+            <input type="file" id="blogFile" accept="image/*">
+          </div>
+          <div class="field">
+            <label for="blogImageUrl">Or Cover Image URL</label>
+            <input type="url" id="blogImageUrl" placeholder="https://...">
+          </div>
+          <div class="field form-full">
+            <label for="blogExcerpt">Short Excerpt (shown on cards)</label>
+            <textarea id="blogExcerpt" style="min-height:74px" placeholder="Brief 1–2 sentence summary..."></textarea>
+          </div>
+          <div class="field form-full">
+            <label for="blogContent">Article Content *</label>
+            <textarea id="blogContent" required style="min-height:220px" placeholder="Write your full article here. Separate paragraphs with a blank line. Use ## for section headings and > for quotes."></textarea>
+            <span class="field-hint">Tip: Blank lines create new paragraphs; start a line with <code>## </code> for a subheading or <code>&gt; </code> for a highlight quote.</span>
+          </div>
+          <div class="field form-full">
+            <label class="checkbox-row">
+              <input type="checkbox" id="blogPublished" checked>
+              <span>Publish immediately (visible on Home page &amp; Blog archive)</span>
+            </label>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" id="blogSubmitBtn" class="btn btn-gold">Save Article</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title">All Articles (<span id="blogCount">0</span>)</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Title</th><th>Category</th><th>Author</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody id="blogTableBody"><tr><td colspan="6" style="color:var(--text-muted)">Loading articles…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="admin.js"></script>
+<script>
+renderAdminChrome('blog');
+let sb = null;
+let allBlogs = [];
+
+document.getElementById('blogTitle').addEventListener('input', function() {
+  if (!document.getElementById('blogId').value) {
+    document.getElementById('blogSlug').value = slugify(this.value);
+  }
+});
+
+function resetForm() {
+  document.getElementById('blogForm').reset();
+  document.getElementById('blogId').value = '';
+  document.getElementById('blogAuthor').value = 'RUACH Editorial';
+  document.getElementById('blogPublished').checked = true;
+  document.getElementById('blogFormHeading').textContent = 'Create New Article';
+  document.getElementById('blogSubmitBtn').textContent = 'Save Article';
+  document.getElementById('cancelEditBtn').style.display = 'none';
+}
+
+function editBlog(id) {
+  const post = allBlogs.find(b => b.id === id);
+  if (!post) return;
+  document.getElementById('blogId').value = post.id;
+  document.getElementById('blogTitle').value = post.title || '';
+  document.getElementById('blogSlug').value = post.slug || '';
+  document.getElementById('blogCategory').value = post.category || 'Leadership';
+  document.getElementById('blogAuthor').value = post.author || 'RUACH Editorial';
+  document.getElementById('blogImageUrl').value = post.featured_image_url || '';
+  document.getElementById('blogExcerpt').value = post.excerpt || '';
+  document.getElementById('blogContent').value = post.content || '';
+  document.getElementById('blogPublished').checked = Boolean(post.published);
+  document.getElementById('blogFormHeading').textContent = 'Edit Article';
+  document.getElementById('blogSubmitBtn').textContent = 'Update Article';
+  document.getElementById('cancelEditBtn').style.display = 'inline-flex';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function togglePublish(id, current) {
+  const { error } = await sb.from('blogs').update({
+    published: !current,
+    published_at: !current ? new Date().toISOString() : null,
+    updated_at: new Date().toISOString()
+  }).eq('id', id);
+  if (error) { showToast(error.message, 'error'); return; }
+  bustFrontendCache('news-home');
+  showToast(!current ? 'Article published!' : 'Article moved to drafts.');
+  fetchBlogs();
+}
+
+async function deleteBlog(id) {
+  if (!confirm('Permanently delete this article?')) return;
+  const { error } = await sb.from('blogs').delete().eq('id', id);
+  if (error) { showToast(error.message, 'error'); return; }
+  bustFrontendCache('news-home');
+  showToast('Article deleted.');
+  fetchBlogs();
+}
+
+async function fetchBlogs() {
+  const { data, error } = await sb.from('blogs').select('*').order('created_at', { ascending: false });
+  if (error) { showToast(error.message, 'error'); return; }
+  allBlogs = data || [];
+  document.getElementById('blogCount').textContent = allBlogs.length;
+  const tbody = document.getElementById('blogTableBody');
+  if (!allBlogs.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text-muted)">No articles yet. Write your first post above!</td></tr>';
+    return;
+  }
+  tbody.innerHTML = allBlogs.map(b => `
+    <tr>
+      <td>
+        <strong>${escHtml(b.title)}</strong><br>
+        <small style="color:var(--text-light)">/${escHtml(b.slug)}</small>
+      </td>
+      <td>${escHtml(b.category)}</td>
+      <td>${escHtml(b.author)}</td>
+      <td><span class="badge ${b.published ? 'badge-green' : 'badge-gray'}">${b.published ? 'Published' : 'Draft'}</span></td>
+      <td>${escHtml(fmtDate(b.published_at || b.created_at))}</td>
+      <td>
+        <div class="td-actions">
+          ${b.published ? `<a href="../blog-post.html?slug=${encodeURIComponent(b.slug)}" target="_blank" class="btn btn-outline btn-sm">Read ↗</a>` : ''}
+          <button type="button" class="btn btn-outline btn-sm" onclick="editBlog(${b.id})">Edit</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="togglePublish(${b.id}, ${b.published})">${b.published ? 'Unpublish' : 'Publish'}</button>
+          <button type="button" class="btn btn-danger btn-sm" onclick="deleteBlog(${b.id})">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+document.getElementById('blogForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!sb) return;
+  const btn = document.getElementById('blogSubmitBtn');
+  const id = document.getElementById('blogId').value;
+  const title = document.getElementById('blogTitle').value.trim();
+  const slug = slugify(document.getElementById('blogSlug').value.trim() || title);
+  const category = document.getElementById('blogCategory').value;
+  const author = document.getElementById('blogAuthor').value.trim() || 'RUACH Editorial';
+  const excerpt = document.getElementById('blogExcerpt').value.trim();
+  const content = document.getElementById('blogContent').value.trim();
+  const published = document.getElementById('blogPublished').checked;
+  const file = document.getElementById('blogFile').files[0];
+  let imageUrl = document.getElementById('blogImageUrl').value.trim();
+
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  try {
+    if (file) {
+      imageUrl = await uploadMediaFile(sb, file, 'blogs');
+    }
+    const payload = {
+      title, slug, category, author, excerpt, content,
+      featured_image_url: imageUrl || null,
+      published,
+      updated_at: new Date().toISOString()
+    };
+    if (published) payload.published_at = new Date().toISOString();
+
+    let res;
+    if (id) {
+      res = await sb.from('blogs').update(payload).eq('id', Number(id));
+    } else {
+      res = await sb.from('blogs').insert([payload]);
+    }
+    if (res.error) throw res.error;
+    bustFrontendCache('news-home');
+    resetForm();
+    showToast(id ? 'Article updated!' : 'Article created!');
+    fetchBlogs();
+  } catch (err) {
+    showToast(err.message || 'Could not save article.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = document.getElementById('blogId').value ? 'Update Article' : 'Save Article';
+  }
+});
+
+document.addEventListener('DOMContentLoaded', async () => {
+  sb = await requireAdminAuth();
+  if (sb) fetchBlogs();
+});
+</script>
+</body>
+</html>

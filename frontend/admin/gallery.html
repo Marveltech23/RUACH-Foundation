@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gallery Manager — RUACH Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="admin-mobile-bar" id="adminMobileBar"></div>
+<div class="admin-shell">
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <div>
+        <div class="admin-eyebrow">Media Library</div>
+        <h1 class="admin-title">Gallery Manager</h1>
+      </div>
+      <a href="../gallery.html" target="_blank" class="btn btn-outline">Preview Public Gallery ↗</a>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title">Add New Photo</h2>
+      </div>
+      <form id="galleryForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="galTitle">Photo Title / Caption *</label>
+            <input type="text" id="galTitle" required placeholder="e.g. Leadership Conference 2026">
+          </div>
+          <div class="field">
+            <label for="galCategory">Category *</label>
+            <select id="galCategory">
+              <option value="events">Events</option>
+              <option value="projects">Projects</option>
+              <option value="installations">Installations</option>
+              <option value="team">Team</option>
+              <option value="community">Community</option>
+              <option value="trainings">Trainings</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="galFile">Upload Image File (Supabase Storage)</label>
+            <input type="file" id="galFile" accept="image/*">
+            <span class="field-hint">Uploads directly to your <code>ruach-media</code> bucket.</span>
+          </div>
+          <div class="field">
+            <label for="galUrl">Or Paste Image URL</label>
+            <input type="url" id="galUrl" placeholder="https://...">
+            <span class="field-hint">Leave blank if uploading a file on the left.</span>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" id="galSubmitBtn" class="btn btn-gold">Upload to Gallery</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title">Uploaded Photos (<span id="galCount">0</span>)</h2>
+        <select id="galFilter" style="padding:8px 14px;border:1px solid rgba(11,61,46,.2);border-radius:3px;font-family:var(--sans);font-size:13px">
+          <option value="all">All Categories</option>
+          <option value="events">Events</option>
+          <option value="projects">Projects</option>
+          <option value="installations">Installations</option>
+          <option value="team">Team</option>
+          <option value="community">Community</option>
+          <option value="trainings">Trainings</option>
+        </select>
+      </div>
+      <div class="admin-gallery-grid" id="adminGalleryGrid">
+        <div style="color:var(--text-muted);font-size:13px">Loading gallery…</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="admin.js"></script>
+<script>
+renderAdminChrome('gallery');
+let sb = null;
+let galleryItems = [];
+
+function renderList() {
+  const filter = document.getElementById('galFilter').value;
+  const items = filter === 'all' ? galleryItems : galleryItems.filter(i => i.category === filter);
+  document.getElementById('galCount').textContent = items.length;
+  const grid = document.getElementById('adminGalleryGrid');
+  if (!items.length) {
+    grid.innerHTML = '<div style="color:var(--text-muted);font-size:13px">No gallery images yet. Upload your first photo above!</div>';
+    return;
+  }
+  grid.innerHTML = items.map(img => `
+    <div class="admin-gallery-card">
+      <div class="admin-gallery-thumb">
+        <img src="${escHtml(img.image_url)}" alt="${escHtml(img.title)}" loading="lazy">
+      </div>
+      <div class="admin-gallery-info">
+        <div class="admin-gallery-title">${escHtml(img.title)}</div>
+        <div class="admin-gallery-meta">
+          <span class="badge badge-gold">${escHtml(img.category)}</span>
+          <button type="button" class="btn btn-danger btn-sm" onclick="deletePhoto(${img.id})">Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function fetchGallery() {
+  const { data, error } = await sb.from('gallery').select('*').order('created_at', { ascending: false });
+  if (error) { showToast(error.message, 'error'); return; }
+  galleryItems = data || [];
+  renderList();
+}
+
+async function deletePhoto(id) {
+  if (!confirm('Remove this photo from the gallery?')) return;
+  const { error } = await sb.from('gallery').delete().eq('id', id);
+  if (error) { showToast(error.message, 'error'); return; }
+  bustFrontendCache('gallery-home');
+  showToast('Photo deleted.');
+  fetchGallery();
+}
+
+document.getElementById('galFilter').addEventListener('change', renderList);
+
+document.getElementById('galleryForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!sb) return;
+  const btn = document.getElementById('galSubmitBtn');
+  const title = document.getElementById('galTitle').value.trim();
+  const category = document.getElementById('galCategory').value;
+  const file = document.getElementById('galFile').files[0];
+  let imageUrl = document.getElementById('galUrl').value.trim();
+
+  if (!file && !imageUrl) {
+    showToast('Please select an image file or paste an image URL.', 'error');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Uploading…';
+  try {
+    if (file) {
+      imageUrl = await uploadMediaFile(sb, file, 'gallery');
+    }
+    const { error } = await sb.from('gallery').insert([{ title, category, image_url: imageUrl }]);
+    if (error) throw error;
+    bustFrontendCache('gallery-home');
+    document.getElementById('galleryForm').reset();
+    showToast('Photo added to gallery!');
+    fetchGallery();
+  } catch (err) {
+    showToast(err.message || 'Upload failed.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Upload to Gallery';
+  }
+});
+
+document.addEventListener('DOMContentLoaded', async () => {
+  sb = await requireAdminAuth();
+  if (sb) fetchGallery();
+});
+</script>
+</body>
+</html>

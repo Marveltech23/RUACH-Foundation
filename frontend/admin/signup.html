@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Sign Up — RUACH Foundation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body class="login-page">
+
+<div class="login-card">
+  <div class="login-logo">
+    <img src="../images/logoAsset 3.png" alt="RUACH Foundation">
+    <div>
+      <div style="font-family:var(--serif);font-size:1.15rem;font-weight:600;color:var(--emerald)">RUACH Foundation</div>
+      <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)">Admin Portal</div>
+    </div>
+  </div>
+
+  <h1 class="login-title">Create Admin Account</h1>
+  <p class="login-sub">Register an authorized administrator account for the RUACH Foundation website.</p>
+
+  <div id="signupAlert" class="login-alert"></div>
+
+  <form id="signupForm" style="display:flex;flex-direction:column;gap:14px">
+    <div class="field">
+      <label for="adminName">Full Name</label>
+      <input type="text" id="adminName" required placeholder="e.g. Mrs. Nnasha Michael-Ihunde">
+    </div>
+    <div class="field">
+      <label for="adminEmail">Email Address</label>
+      <input type="email" id="adminEmail" required placeholder="admin@ruachfcb.com">
+    </div>
+    <div class="field">
+      <label for="adminPassword">Password (min. 6 characters)</label>
+      <input type="password" id="adminPassword" required minlength="6" placeholder="Create a strong password">
+    </div>
+    <div class="field">
+      <label for="adminConfirmPassword">Confirm Password</label>
+      <input type="password" id="adminConfirmPassword" required minlength="6" placeholder="Repeat password">
+    </div>
+    <div class="field">
+      <label for="adminInviteCode">Admin Access Code</label>
+      <input type="password" id="adminInviteCode" required placeholder="Enter foundation invite code">
+      <span class="field-hint">Set in <code>js/supabase-config.js</code> (default: <code>RUACH-ADMIN-2026</code>).</span>
+    </div>
+    <button type="submit" id="signupBtn" class="btn btn-gold" style="width:100%;padding:14px;margin-top:4px">Create Admin Account →</button>
+  </form>
+
+  <div style="margin-top:20px;text-align:center;font-size:12px;color:var(--text-muted);display:flex;flex-direction:column;gap:8px">
+    <div>Already have an account? <a href="login.html" style="color:var(--emerald);font-weight:600;text-decoration:underline">Sign In</a></div>
+    <a href="../index.html" style="color:var(--text-muted)">← Back to RUACH Website</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script>
+const alertBox = document.getElementById('signupAlert');
+
+function showAlert(msg, kind = 'error') {
+  alertBox.textContent = msg;
+  alertBox.className = 'login-alert ' + kind;
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!window.isSupabaseConfigured()) {
+    showAlert('Supabase is not connected yet. Check frontend/js/supabase-config.js.', 'info');
+    return;
+  }
+  const sb = window.getSupabaseClient();
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) window.location.href = 'index.html';
+});
+
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!window.isSupabaseConfigured()) {
+    showAlert('Supabase is not configured in frontend/js/supabase-config.js.', 'error');
+    return;
+  }
+
+  const fullName = document.getElementById('adminName').value.trim();
+  const email = document.getElementById('adminEmail').value.trim();
+  const password = document.getElementById('adminPassword').value;
+  const confirmPassword = document.getElementById('adminConfirmPassword').value;
+  const inviteCode = document.getElementById('adminInviteCode').value.trim();
+  const expectedCode = (window.RUACH_CONFIG && window.RUACH_CONFIG.ADMIN_INVITE_CODE) || 'RUACH-ADMIN-2026';
+
+  if (password !== confirmPassword) {
+    showAlert('Passwords do not match.', 'error');
+    return;
+  }
+  if (inviteCode !== expectedCode) {
+    showAlert('Invalid Admin Access Code.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('signupBtn');
+  btn.disabled = true;
+  btn.textContent = 'Creating account…';
+
+  try {
+    const sb = window.getSupabaseClient();
+    const redirectUrl = (window.location.origin && window.location.origin !== 'null')
+      ? `${window.location.origin}/admin/login.html`
+      : 'https://www.ruachfcb.com/admin/login.html';
+
+    const { data, error } = await sb.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: redirectUrl,
+        data: { full_name: fullName, role: 'admin' }
+      }
+    });
+
+    if (error) throw error;
+
+    if (data.session) {
+      window.location.href = 'index.html';
+    } else {
+      showAlert('Account created! Please check your email to confirm your address, then sign in.', 'info');
+      document.getElementById('signupForm').reset();
+      btn.disabled = false;
+      btn.textContent = 'Create Admin Account →';
+    }
+  } catch (err) {
+    showAlert(err.message || 'Sign up failed.', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Create Admin Account →';
+  }
+});
+</script>
+</body>
+</html>

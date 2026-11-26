@@ -13,9 +13,9 @@
 
 <!-- NAVIGATION (identical to index.html) -->
 <nav id="mainNav" class="scrolled">
-  <div class="nav-logo">
-    <img class="nav-logo-img" src="images/logoAsset 3.png" alt="Brand name">
-  </div>
+  <a href="index.html" class="nav-logo" aria-label="RUACH Foundation Home">
+    <img class="nav-logo-img" src="images/logoAsset 3.png" alt="RUACH Foundation">
+  </a>
   <div class="nav-links">
     <a href="index.html#about">About</a>
     <a href="index.html#programs">Programs</a>
@@ -201,7 +201,9 @@
         <li><a href="index.html#framework">Our Framework</a></li>
         <li><a href="index.html#founder">Founder's Story</a></li>
         <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="blog.html">News &amp; Insights</a></li>
         <li><a href="index.html#partners">Partners</a></li>
+        <li><a href="admin/login.html">Admin Portal</a></li>
       </ul>
     </div>
     <div class="footer-col">
@@ -221,6 +223,8 @@
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
 <script>
 /* ── NAV SCROLL (kept solid since page-hero is already dark) ── */
 window.addEventListener('scroll',function(){
@@ -250,26 +254,37 @@ document.addEventListener('click',function(e){
   }
 });
 
-/* ══════════════════════════════════════════════════════════════════
-   BACKEND CONNECTION
-   ══════════════════════════════════════════════════════════════════ */
-const API_BASE_URL = 'https://ruach-backend-td82.onrender.com'; // ↓ UPDATE to your deployed backend URL
+function escHtml(str) {
+  return String(str == null ? '' : str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
+/* ══════════════════════════════════════════════════════════════════
+   SUPABASE GALLERY CONNECTION
+   ══════════════════════════════════════════════════════════════════ */
 async function loadGalleryFromBackend() {
   const grid = document.getElementById('galleryGrid');
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/gallery`);
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Failed to load gallery.');
-    const images = data.data;
+  const sb = window.getSupabaseClient ? window.getSupabaseClient() : null;
+  if (!sb) return; // keep fallback items when Supabase is not configured yet
 
-    if (!images.length) return; // keep the fallback items above if nothing uploaded yet
+  try {
+    const { data, error } = await sb
+      .from('gallery')
+      .select('id, title, category, image_url, created_at')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    const images = data || [];
+    if (!images.length) return; // keep fallback items if nothing uploaded yet
 
     grid.innerHTML = images.map(img => `
-      <div class="masonry-item gallery-page-item" data-category="${img.category || 'events'}">
+      <div class="masonry-item gallery-page-item" data-category="${escHtml((img.category || 'events').toLowerCase())}">
         <div class="img-ph">
-          <img class="gallery-img" src="${img.image_url}" alt="${img.title || ''}" loading="lazy">
-          <span class="masonry-label">${img.title || ''}</span>
+          <img class="gallery-img" src="${escHtml(img.image_url)}" alt="${escHtml(img.title || '')}" loading="lazy">
+          <span class="masonry-label">${escHtml(img.title || '')}</span>
         </div>
       </div>
     `).join('');

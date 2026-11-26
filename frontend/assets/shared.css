@@ -276,6 +276,7 @@ flex-wrap:wrap}
 .award-info p{font-family:var(--sans);font-size:0.78rem;font-weight:300;color:rgba(255,255,255,0.45)}
 
 /* TESTIMONIALS */
+
 #testimonials{background:var(--ivory-warm);overflow:hidden}
 .testimonials-header{text-align:center;margin-bottom:60px}
 .testimonials-header .section-subtitle{margin:0 auto}
@@ -287,30 +288,13 @@ touch-action:pan-y}
 /* RESPONSIVENESS FIX: prevent card from exceeding viewport width on mobile */
 min-width:0}
 .testi-card::before{content:'\201C';font-family:var(--serif);font-size:6rem;font-weight:600;color:var(--gold-pale);position:absolute;top:10px;left:28px;line-height:1}
-.testi-video-ph{width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,var(--emerald) 0%,var(--emerald-deep) 100%);border-radius:2px;margin-bottom:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden}
-/* MEDIA ADDITION: testimonial thumbnail image fills the video placeholder */
-.testi-video-ph img.testi-thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:0}
-/* MEDIA ADDITION: play button stays on top of thumbnail */
-.play-btn{width:56px;height:56px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform 0.3s;
-/* MEDIA ADDITION: sit above thumbnail image */
-position:relative;z-index:2}
-.play-btn::after{content:'';border-left:18px solid var(--emerald-deep);border-top:10px solid transparent;border-bottom:10px solid transparent;margin-left:4px}
-.testi-video-ph:hover .play-btn{transform:scale(1.1)}
-/* MEDIA ADDITION: iframe injected on click fills the placeholder replacing thumbnail + play btn */
-.testi-video-ph iframe.testi-iframe{position:absolute;inset:0;width:100%;height:100%;border:none;z-index:3;display:none}
-/* MEDIA ADDITION: self-hosted video element inside testimonial placeholder */
-.testi-video-ph video.testi-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:3}
 .testi-quote{font-family:var(--serif);font-size:1.05rem;font-style:italic;font-weight:300;line-height:1.7;color:var(--emerald);margin-bottom:24px;position:relative;z-index:1}
+.testi-quote.clamped{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+.testi-more{background:none;border:none;padding:0;margin:-8px 0 24px;font-family:var(--sans);font-size:0.75rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);cursor:pointer;position:relative;z-index:1}
 .testi-author{display:flex;align-items:center;gap:12px}
 .testi-avatar{width:42px;height:42px;border-radius:50%;background:var(--emerald-mid);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:16px;font-weight:600;color:var(--gold);
 /* RESPONSIVENESS FIX: prevent avatar from shrinking */
-flex-shrink:0;
-/* MEDIA ADDITION: needed for author photo support */
-overflow:hidden;position:relative}
-/* MEDIA ADDITION: author photo inside the avatar circle */
-.testi-avatar img.testi-author-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
-/* MEDIA ADDITION: hide the initial letter when author photo is present */
-.testi-avatar.has-photo .testi-initial{display:none}
+flex-shrink:0}
 .testi-author-info span{display:block;font-family:var(--sans);font-size:0.82rem;font-weight:500;color:var(--charcoal)}
 .testi-author-info small{font-family:var(--sans);font-size:0.75rem;font-weight:300;color:var(--text-muted)}
 .carousel-controls{display:flex;justify-content:center;align-items:center;gap:20px;margin-top:40px}

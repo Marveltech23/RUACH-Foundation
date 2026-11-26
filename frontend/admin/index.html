@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — RUACH Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="admin-mobile-bar" id="adminMobileBar"></div>
+<div class="admin-shell">
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <div>
+        <div class="admin-eyebrow">Overview</div>
+        <h1 class="admin-title">Admin Dashboard</h1>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a href="blog.html" class="btn btn-gold">+ New Blog Post</a>
+        <a href="events.html" class="btn btn-emerald">+ Create Event</a>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="stat-box-label">Gallery Photos</div>
+        <div class="stat-box-value" id="statGallery">—</div>
+        <div class="stat-box-sub"><a href="gallery.html" style="color:var(--gold)">Manage gallery →</a></div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">Blog Articles</div>
+        <div class="stat-box-value" id="statBlogs">—</div>
+        <div class="stat-box-sub"><a href="blog.html" style="color:var(--gold)">Manage articles →</a></div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">Events / Regs</div>
+        <div class="stat-box-value" id="statEvents">—</div>
+        <div class="stat-box-sub"><a href="events.html" style="color:var(--gold)">Manage events →</a></div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">Total Donations</div>
+        <div class="stat-box-value" id="statDonations">—</div>
+        <div class="stat-box-sub"><a href="donations.html" style="color:var(--gold)">View donations →</a></div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">Inquiries</div>
+        <div class="stat-box-value" id="statInquiries">—</div>
+        <div class="stat-box-sub"><a href="inquiries.html" style="color:var(--gold)">View messages →</a></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title">Recent Event Registrations</h2>
+        <a href="events.html" class="btn btn-outline btn-sm">All Events</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Attendee</th><th>Email</th><th>Event</th><th>Date</th></tr></thead>
+          <tbody id="recentRegsBody"><tr><td colspan="4" style="color:var(--text-muted)">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title">Recent Donations</h2>
+        <a href="donations.html" class="btn btn-outline btn-sm">All Donations</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Donor</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody id="recentDonationsBody"><tr><td colspan="5" style="color:var(--text-muted)">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="admin.js"></script>
+<script>
+renderAdminChrome('dashboard');
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const sb = await requireAdminAuth();
+  if (!sb) return;
+
+  try {
+    const [gal, blg, evt, regs, dons, inq] = await Promise.all([
+      sb.from('gallery').select('id', { count: 'exact', head: true }),
+      sb.from('blogs').select('id', { count: 'exact', head: true }),
+      sb.from('events').select('id', { count: 'exact', head: true }),
+      sb.from('event_registrations').select('*').order('created_at', { ascending: false }).limit(5),
+      sb.from('donations').select('*').order('created_at', { ascending: false }),
+      sb.from('inquiries').select('id', { count: 'exact', head: true })
+    ]);
+
+    const regCountRes = await sb.from('event_registrations').select('id', { count: 'exact', head: true });
+    document.getElementById('statGallery').textContent = gal.count ?? 0;
+    document.getElementById('statBlogs').textContent = blg.count ?? 0;
+    document.getElementById('statEvents').textContent = `${evt.count ?? 0} / ${regCountRes.count ?? 0}`;
+    document.getElementById('statInquiries').textContent = inq.count ?? 0;
+
+    const allDonations = dons.data || [];
+    const totalAmount = allDonations.reduce((sum, d) => sum + Number(d.amount || 0), 0);
+    document.getElementById('statDonations').textContent = fmtNaira(totalAmount);
+
+    const regsList = regs.data || [];
+    document.getElementById('recentRegsBody').innerHTML = regsList.length
+      ? regsList.map(r => `
+          <tr>
+            <td><strong>${escHtml(r.full_name)}</strong></td>
+            <td>${escHtml(r.email)}</td>
+            <td>${escHtml(r.event_title || '#' + r.event_id)}</td>
+            <td>${escHtml(fmtDate(r.created_at))}</td>
+          </tr>`).join('')
+      : '<tr><td colspan="4" style="color:var(--text-muted)">No registrations yet.</td></tr>';
+
+    const recentDons = allDonations.slice(0, 5);
+    document.getElementById('recentDonationsBody').innerHTML = recentDons.length
+      ? recentDons.map(d => `
+          <tr>
+            <td><strong>${escHtml(d.full_name)}</strong><br><small style="color:var(--text-muted)">${escHtml(d.email)}</small></td>
+            <td>${escHtml(d.donation_type)}</td>
+            <td><strong>${escHtml(fmtNaira(d.amount))}</strong></td>
+            <td><span class="badge ${d.status === 'completed' ? 'badge-green' : 'badge-gold'}">${escHtml(d.status)}</span></td>
+            <td>${escHtml(fmtDate(d.created_at))}</td>
+          </tr>`).join('')
+      : '<tr><td colspan="5" style="color:var(--text-muted)">No donations recorded yet.</td></tr>';
+  } catch (err) {
+    showToast(err.message || 'Failed to load dashboard stats', 'error');
+  }
+});
+</script>
+</body>
+</html>

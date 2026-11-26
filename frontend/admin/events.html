@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Events &amp; Registrations — RUACH Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="admin-mobile-bar" id="adminMobileBar"></div>
+<div class="admin-shell">
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <div>
+        <div class="admin-eyebrow">Calendar</div>
+        <h1 class="admin-title">Events &amp; Registrations</h1>
+      </div>
+      <a href="../index.html#events" target="_blank" class="btn btn-outline">Preview Events Section ↗</a>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title" id="eventFormHeading">Create New Event</h2>
+        <button type="button" id="cancelEventEditBtn" class="btn btn-outline btn-sm" style="display:none" onclick="resetEventForm()">Cancel Edit</button>
+      </div>
+      <form id="eventForm">
+        <input type="hidden" id="eventId">
+        <div class="form-grid">
+          <div class="field">
+            <label for="eventTitle">Event Title *</label>
+            <input type="text" id="eventTitle" required placeholder="e.g. Queen Esther Annual Summit 2026">
+          </div>
+          <div class="field">
+            <label for="eventDate">Event Date *</label>
+            <input type="date" id="eventDate" required>
+          </div>
+          <div class="field">
+            <label for="eventStart">Start Time</label>
+            <input type="text" id="eventStart" placeholder="e.g. 9:00 AM">
+          </div>
+          <div class="field">
+            <label for="eventEnd">End Time</label>
+            <input type="text" id="eventEnd" placeholder="e.g. 5:00 PM">
+          </div>
+          <div class="field form-full">
+            <label for="eventVenue">Venue / Location *</label>
+            <input type="text" id="eventVenue" required placeholder="e.g. Transcorp Hilton, Abuja, FCT">
+          </div>
+          <div class="field">
+            <label for="eventFile">Upload Event Banner</label>
+            <input type="file" id="eventFile" accept="image/*">
+          </div>
+          <div class="field">
+            <label for="eventBannerUrl">Or Banner Image URL</label>
+            <input type="url" id="eventBannerUrl" placeholder="https://...">
+          </div>
+          <div class="field form-full">
+            <label for="eventDesc">Description (optional)</label>
+            <textarea id="eventDesc" style="min-height:80px" placeholder="Short description of the event..."></textarea>
+          </div>
+          <div class="field">
+            <label class="checkbox-row">
+              <input type="checkbox" id="eventRegOpen" checked>
+              <span>Registration Open</span>
+            </label>
+          </div>
+          <div class="field">
+            <label class="checkbox-row">
+              <input type="checkbox" id="eventPublished" checked>
+              <span>Published on Website</span>
+            </label>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" id="eventSubmitBtn" class="btn btn-gold">Save Event</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title">All Events (<span id="eventCount">0</span>)</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Event</th><th>Date &amp; Time</th><th>Venue</th><th>Status</th><th>Registrations</th><th>Actions</th></tr></thead>
+          <tbody id="eventsTableBody"><tr><td colspan="6" style="color:var(--text-muted)">Loading events…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- REGISTRATIONS MODAL -->
+<div class="admin-modal-overlay" id="regsModal">
+  <div class="admin-modal">
+    <button type="button" class="admin-modal-close" onclick="closeRegsModal()">&times;</button>
+    <div class="admin-eyebrow">Attendee List</div>
+    <h2 class="panel-title" id="regsModalTitle" style="margin-bottom:16px">Event Registrations</h2>
+    <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <span id="regsModalCount" style="font-size:13px;color:var(--text-muted)">0 attendees</span>
+      <button type="button" class="btn btn-emerald btn-sm" onclick="exportRegsCsv()">Export CSV</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Full Name</th><th>Email</th><th>Phone</th><th>Organization</th><th>Registered</th></tr></thead>
+        <tbody id="regsModalBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="admin.js"></script>
+<script>
+renderAdminChrome('events');
+let sb = null;
+let allEvents = [];
+let allRegs = [];
+let currentModalRegs = [];
+let currentModalEventName = '';
+
+function resetEventForm() {
+  document.getElementById('eventForm').reset();
+  document.getElementById('eventId').value = '';
+  document.getElementById('eventRegOpen').checked = true;
+  document.getElementById('eventPublished').checked = true;
+  document.getElementById('eventFormHeading').textContent = 'Create New Event';
+  document.getElementById('eventSubmitBtn').textContent = 'Save Event';
+  document.getElementById('cancelEventEditBtn').style.display = 'none';
+}
+
+function editEvent(id) {
+  const e = allEvents.find(x => x.id === id);
+  if (!e) return;
+  document.getElementById('eventId').value = e.id;
+  document.getElementById('eventTitle').value = e.title || '';
+  document.getElementById('eventDate').value = e.event_date || '';
+  document.getElementById('eventStart').value = e.start_time || '';
+  document.getElementById('eventEnd').value = e.end_time || '';
+  document.getElementById('eventVenue').value = e.venue || '';
+  document.getElementById('eventBannerUrl').value = e.banner_url || '';
+  document.getElementById('eventDesc').value = e.description || '';
+  document.getElementById('eventRegOpen').checked = e.registration_open !== false;
+  document.getElementById('eventPublished').checked = Boolean(e.published);
+  document.getElementById('eventFormHeading').textContent = 'Edit Event';
+  document.getElementById('eventSubmitBtn').textContent = 'Update Event';
+  document.getElementById('cancelEventEditBtn').style.display = 'inline-flex';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function openRegsModal(eventId) {
+  const evt = allEvents.find(x => x.id === eventId);
+  currentModalEventName = evt ? evt.title : 'Event';
+  currentModalRegs = allRegs.filter(r => r.event_id === eventId);
+  document.getElementById('regsModalTitle').textContent = currentModalEventName;
+  document.getElementById('regsModalCount').textContent = `${currentModalRegs.length} attendee(s)`;
+  document.getElementById('regsModalBody').innerHTML = currentModalRegs.length
+    ? currentModalRegs.map(r => `
+        <tr>
+          <td><strong>${escHtml(r.full_name)}</strong></td>
+          <td>${escHtml(r.email)}</td>
+          <td>${escHtml(r.phone || '—')}</td>
+          <td>${escHtml(r.organization || '—')}</td>
+          <td>${escHtml(fmtDate(r.created_at))}</td>
+        </tr>`).join('')
+    : '<tr><td colspan="5" style="color:var(--text-muted)">No registrations for this event yet.</td></tr>';
+  document.getElementById('regsModal').classList.add('open');
+}
+
+function closeRegsModal() {
+  document.getElementById('regsModal').classList.remove('open');
+}
+
+function exportRegsCsv() {
+  if (!currentModalRegs.length) { showToast('No registrations to export.', 'error'); return; }
+  const headers = ['Full Name', 'Email', 'Phone', 'Organization', 'Registered At'];
+  const rows = currentModalRegs.map(r => [r.full_name, r.email, r.phone || '', r.organization || '', r.created_at]);
+  const csv = [headers, ...rows].map(row => row.map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = slugify(currentModalEventName || 'registrations') + '-attendees.csv';
+  link.click();
+}
+
+async function toggleRegOpen(id, current) {
+  const { error } = await sb.from('events').update({ registration_open: !current }).eq('id', id);
+  if (error) { showToast(error.message, 'error'); return; }
+  bustFrontendCache('events-home');
+  showToast(!current ? 'Registration opened.' : 'Registration closed.');
+  fetchEvents();
+}
+
+async function deleteEvent(id) {
+  if (!confirm('Delete this event and all its registrations?')) return;
+  const { error } = await sb.from('events').delete().eq('id', id);
+  if (error) { showToast(error.message, 'error'); return; }
+  bustFrontendCache('events-home');
+  showToast('Event deleted.');
+  fetchEvents();
+}
+
+async function fetchEvents() {
+  const [evRes, regRes] = await Promise.all([
+    sb.from('events').select('*').order('event_date', { ascending: true }),
+    sb.from('event_registrations').select('*').order('created_at', { ascending: false })
+  ]);
+  if (evRes.error) { showToast(evRes.error.message, 'error'); return; }
+  allEvents = evRes.data || [];
+  allRegs = regRes.data || [];
+  document.getElementById('eventCount').textContent = allEvents.length;
+
+  const tbody = document.getElementById('eventsTableBody');
+  if (!allEvents.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text-muted)">No events created yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = allEvents.map(e => {
+    const count = allRegs.filter(r => r.event_id === e.id).length;
+    return `
+      <tr>
+        <td><strong>${escHtml(e.title)}</strong></td>
+        <td>${escHtml(fmtDate(e.event_date))}<br><small style="color:var(--text-light)">${escHtml(e.start_time || '')}${e.end_time ? ' – ' + escHtml(e.end_time) : ''}</small></td>
+        <td>${escHtml(e.venue || '—')}</td>
+        <td>
+          <span class="badge ${e.published ? 'badge-green' : 'badge-gray'}">${e.published ? 'Published' : 'Hidden'}</span>
+          <span class="badge ${e.registration_open ? 'badge-gold' : 'badge-red'}">${e.registration_open ? 'Reg Open' : 'Reg Closed'}</span>
+        </td>
+        <td>
+          <button type="button" class="btn btn-emerald btn-sm" onclick="openRegsModal(${e.id})">${count} Registered</button>
+        </td>
+        <td>
+          <div class="td-actions">
+            <button type="button" class="btn btn-outline btn-sm" onclick="editEvent(${e.id})">Edit</button>
+            <button type="button" class="btn btn-outline btn-sm" onclick="toggleRegOpen(${e.id}, ${e.registration_open})">${e.registration_open ? 'Close Reg' : 'Open Reg'}</button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="deleteEvent(${e.id})">Delete</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+document.getElementById('eventForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!sb) return;
+  const btn = document.getElementById('eventSubmitBtn');
+  const id = document.getElementById('eventId').value;
+  const file = document.getElementById('eventFile').files[0];
+  let bannerUrl = document.getElementById('eventBannerUrl').value.trim();
+
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  try {
+    if (file) {
+      bannerUrl = await uploadMediaFile(sb, file, 'events');
+    }
+    const payload = {
+      title: document.getElementById('eventTitle').value.trim(),
+      event_date: document.getElementById('eventDate').value,
+      start_time: document.getElementById('eventStart').value.trim(),
+      end_time: document.getElementById('eventEnd').value.trim(),
+      venue: document.getElementById('eventVenue').value.trim(),
+      description: document.getElementById('eventDesc').value.trim(),
+      banner_url: bannerUrl || null,
+      registration_open: document.getElementById('eventRegOpen').checked,
+      published: document.getElementById('eventPublished').checked
+    };
+    const res = id
+      ? await sb.from('events').update(payload).eq('id', Number(id))
+      : await sb.from('events').insert([payload]);
+    if (res.error) throw res.error;
+    bustFrontendCache('events-home');
+    resetEventForm();
+    showToast(id ? 'Event updated!' : 'Event created!');
+    fetchEvents();
+  } catch (err) {
+    showToast(err.message || 'Could not save event.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = document.getElementById('eventId').value ? 'Update Event' : 'Save Event';
+  }
+});
+
+document.addEventListener('DOMContentLoaded', async () => {
+  sb = await requireAdminAuth();
+  if (sb) fetchEvents();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Donations — RUACH Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="admin-mobile-bar" id="adminMobileBar"></div>
+<div class="admin-shell">
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <div>
+        <div class="admin-eyebrow">Giving</div>
+        <h1 class="admin-title">Donations</h1>
+      </div>
+      <a href="../index.html#donate" target="_blank" class="btn btn-outline">Preview Donate Section ↗</a>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="stat-box-label">Total Completed</div>
+        <div class="stat-box-value" id="donCompletedTotal">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">Pending Verification</div>
+        <div class="stat-box-value" id="donPendingTotal">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">Total Gifts</div>
+        <div class="stat-box-value" id="donCount">—</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title">Donation Records</h2>
+        <select id="donFilter" style="padding:8px 14px;border:1px solid rgba(11,61,46,.2);border-radius:3px;font-family:var(--sans);font-size:13px">
+          <option value="all">All Statuses</option>
+          <option value="completed">Completed</option>
+          <option value="pending">Pending</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Donor</th><th>Giving Type</th><th>Amount</th><th>Method</th><th>Reference</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+          <tbody id="donationsTableBody"><tr><td colspan="8" style="color:var(--text-muted)">Loading donations…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="admin.js"></script>
+<script>
+renderAdminChrome('donations');
+let sb = null;
+let donations = [];
+
+function renderDonations() {
+  const filter = document.getElementById('donFilter').value;
+  const list = filter === 'all' ? donations : donations.filter(d => d.status === filter);
+  const completedSum = donations.filter(d => d.status === 'completed').reduce((s, d) => s + Number(d.amount || 0), 0);
+  const pendingSum = donations.filter(d => d.status === 'pending').reduce((s, d) => s + Number(d.amount || 0), 0);
+
+  document.getElementById('donCompletedTotal').textContent = fmtNaira(completedSum);
+  document.getElementById('donPendingTotal').textContent = fmtNaira(pendingSum);
+  document.getElementById('donCount').textContent = donations.length;
+
+  const tbody = document.getElementById('donationsTableBody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="color:var(--text-muted)">No donations found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(d => `
+    <tr>
+      <td><strong>${escHtml(d.full_name)}</strong><br><small style="color:var(--text-light)">${escHtml(d.email)}</small></td>
+      <td>${escHtml(d.donation_type)}</td>
+      <td><strong>${escHtml(fmtNaira(d.amount))}</strong></td>
+      <td>${escHtml(d.payment_method || 'paystack')}</td>
+      <td><code style="font-size:11px">${escHtml(d.payment_reference || '—')}</code></td>
+      <td><span class="badge ${d.status === 'completed' ? 'badge-green' : 'badge-gold'}">${escHtml(d.status)}</span></td>
+      <td>${escHtml(fmtDate(d.created_at))}</td>
+      <td>
+        ${d.status !== 'completed'
+          ? `<button type="button" class="btn btn-emerald btn-sm" onclick="markCompleted(${d.id})">Mark Verified</button>`
+          : '<span style="color:var(--text-light);font-size:12px">Verified</span>'}
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function markCompleted(id) {
+  const { error } = await sb.from('donations').update({ status: 'completed' }).eq('id', id);
+  if (error) { showToast(error.message, 'error'); return; }
+  showToast('Donation marked as verified!');
+  fetchDonations();
+}
+
+async function fetchDonations() {
+  const { data, error } = await sb.from('donations').select('*').order('created_at', { ascending: false });
+  if (error) { showToast(error.message, 'error'); return; }
+  donations = data || [];
+  renderDonations();
+}
+
+document.getElementById('donFilter').addEventListener('change', renderDonations);
+
+document.addEventListener('DOMContentLoaded', async () => {
+  sb = await requireAdminAuth();
+  if (sb) fetchDonations();
+});
+</script>
+</body>
+</html>

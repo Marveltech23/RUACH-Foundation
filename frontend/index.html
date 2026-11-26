@@ -796,18 +796,10 @@ flex-wrap:wrap;gap:12px}
 <!-- NAVIGATION -->
 
 <nav id="mainNav">
-  <div class="nav-logo">
-    
+  <a href="index.html" class="nav-logo" aria-label="RUACH Foundation Home">
     <!-- Option A: logo image (set src and delete the fallback block below) -->
-    <img class="nav-logo-img" src="images/logoAsset 3.png" alt="Brand name">
-
-    <!-- Option B: text-based fallback logo -->
-    <!-- <div class="nav-logo-mark">R</div>
-    <div class="nav-logo-text">
-      Brand Name
-      <span>Tagline goes here</span>
-    </div> -->
-  </div>
+    <img class="nav-logo-img" src="images/logoAsset 3.png" alt="RUACH Foundation">
+  </a>
 
   <div class="nav-links">
     <a href="#about">About</a>
@@ -1654,7 +1646,7 @@ function toggleQuote(btn){
         <div class="event-meta"><span>9:00 AM – 5:00 PM</span><span>·</span><span>Abuja</span></div>
         <h3 class="event-name">Queen Esther Annual Summit 2025</h3>
         <p class="event-venue">Transcorp Hilton, Abuja, FCT</p>
-        <a class="btn-primary" style="font-size:10px;padding:10px 22px">Register Now</a>
+        <button type="button" class="btn-primary event-reg-btn" style="font-size:10px;padding:10px 22px;border:none;cursor:pointer" data-event-id="" data-event-title="Queen Esther Annual Summit 2025">Register Now</button>
       </div>
     </div>
 
@@ -1672,7 +1664,7 @@ function toggleQuote(btn){
         <div class="event-meta"><span>10:00 AM – 3:00 PM</span><span>·</span><span>Abuja</span></div>
         <h3 class="event-name">R-CAH Leadership Masterclass</h3>
         <p class="event-venue">RUACH Training Center, Utako</p>
-        <a class="btn-primary" style="font-size:10px;padding:10px 22px">Register Now</a>
+        <button type="button" class="btn-primary event-reg-btn" style="font-size:10px;padding:10px 22px;border:none;cursor:pointer" data-event-id="" data-event-title="R-CAH Leadership Masterclass">Register Now</button>
       </div>
     </div>
 
@@ -1690,7 +1682,7 @@ function toggleQuote(btn){
         <div class="event-meta"><span>8:00 AM – 2:00 PM</span><span>·</span><span>Kuje</span></div>
         <h3 class="event-name">Community Transformation Day</h3>
         <p class="event-venue">Kuje Community Centre, Abuja</p>
-        <a class="btn-primary" style="font-size:10px;padding:10px 22px">Register Now</a>
+        <button type="button" class="btn-primary event-reg-btn" style="font-size:10px;padding:10px 22px;border:none;cursor:pointer" data-event-id="" data-event-title="Community Transformation Day">Register Now</button>
       </div>
     </div>
 
@@ -1777,6 +1769,7 @@ function toggleQuote(btn){
     </div>
     <div class="donate-form">
       <div class="donate-form-title">Make Your Gift</div>
+      <div id="donateFormAlert"></div>
       <div class="amount-grid">
         <div class="amount-btn selected" onclick="selectAmount(this)">₦5,000</div>
         <div class="amount-btn" onclick="selectAmount(this)">₦10,000</div>
@@ -1785,16 +1778,16 @@ function toggleQuote(btn){
         <div class="amount-btn" onclick="selectAmount(this)">₦100,000</div>
         <div class="amount-btn" onclick="selectAmount(this)">₦500,000</div>
       </div>
-      <input class="custom-amount" type="number" placeholder="Or enter custom amount (₦)">
+      <input class="custom-amount" id="donateCustomAmount" type="number" min="100" placeholder="Or enter custom amount (₦)">
       <div class="form-field" style="margin-bottom:16px">
         <label style="font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:8px;display:block">Full Name</label>
-        <input style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:3px;padding:12px 16px;color:var(--ivory);font-family:var(--sans);font-size:16px;width:100%;outline:none" type="text" placeholder="Your full name">
+        <input id="donateFullName" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:3px;padding:12px 16px;color:var(--ivory);font-family:var(--sans);font-size:16px;width:100%;outline:none" type="text" placeholder="Your full name">
       </div>
       <div class="form-field" style="margin-bottom:16px">
         <label style="font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:8px;display:block">Email Address</label>
-        <input style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:3px;padding:12px 16px;color:var(--ivory);font-family:var(--sans);font-size:16px;width:100%;outline:none" type="email" placeholder="your@email.com">
+        <input id="donateEmail" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:3px;padding:12px 16px;color:var(--ivory);font-family:var(--sans);font-size:16px;width:100%;outline:none" type="email" placeholder="your@email.com">
       </div>
-      <button class="donate-submit">Proceed to Give Securely →</button>
+      <button type="button" class="donate-submit" id="donateSubmitBtn">Proceed to Give Securely →</button>
     </div>
   </div>
 </section>
@@ -2003,7 +1996,9 @@ function toggleQuote(btn){
         <li><a href="#framework">Our Framework</a></li>
         <li><a href="#founder">Founder's Story</a></li>
         <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="blog.html">News &amp; Insights</a></li>
         <li><a href="#partners">Partners</a></li>
+        <li><a href="admin/login.html">Admin Portal</a></li>
       </ul>
     </div>
     <div class="footer-col">
@@ -2098,7 +2093,9 @@ window.addEventListener('resize',function(){
 /* ── DONATIONS ── */
 function selectAmount(el){
   document.querySelectorAll('.amount-btn').forEach(b=>b.classList.remove('selected'));
-  el.classList.add('selected')
+  el.classList.add('selected');
+  const custom=document.getElementById('donateCustomAmount');
+  if(custom)custom.value='';
 }
 function selectDonate(el){
   document.querySelectorAll('.donate-option').forEach(o=>o.classList.remove('active'));
@@ -2342,111 +2339,12 @@ document.querySelectorAll('.team-card').forEach(function(card){
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════════════
-     BACKEND CONNECTION — only new line added to this file.
-     Loads js/api.js which fetches live Gallery/Blog/Events data from the
-     backend and populates #galleryGrid, #newsGrid, #eventsGrid in place.
-     If the backend has no data yet (or is unreachable), the original
-     hardcoded content above stays exactly as-is. No other markup,
-     styling, or behavior on this page was changed.
+     SUPABASE + PAYSTACK + API INTEGRATION
+     Loads Supabase JS SDK, Paystack Inline (optional), config, and api.js
      ═══════════════════════════════════════════════════════════════════ -->
-<script>
-(function(){
-  const API_BASE_URL = 'https://ruach-backend-td82.onrender.com';
-  let lastGoodHTML = null;
-  let applyingOwnUpdate = false;
-
-  function fmtLongDate(dateStr) {
-    return dateStr ? new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
-  }
-
-  async function fetchWithTimeout(url, ms = 25000) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), ms);
-    try {
-      const res = await fetch(url, { signal: controller.signal });
-      clearTimeout(timer);
-      return res;
-    } catch (err) {
-      clearTimeout(timer);
-      throw err;
-    }
-  }
-
-  function bindImageFallbacks(grid) {
-    grid.querySelectorAll('img.news-photo').forEach(function(img){
-      if (!img.getAttribute('src') || img.getAttribute('src') === '') {
-        img.style.display = 'none';
-      } else {
-        img.addEventListener('error', function(){ img.style.display = 'none'; });
-      }
-    });
-  }
-
-  function applyHTML(grid, html) {
-    applyingOwnUpdate = true;
-    lastGoodHTML = html;
-    grid.innerHTML = html;
-    bindImageFallbacks(grid);
-    // release the lock after the DOM settles
-    setTimeout(function(){ applyingOwnUpdate = false; }, 50);
-  }
-
-  async function loadHomeNews() {
-    const grid = document.getElementById('newsGrid');
-    if (!grid) return;
-
-    try {
-      const res = await fetchWithTimeout(`${API_BASE_URL}/api/v1/blog?published=true`);
-      const data = await res.json();
-
-      if (!res.ok) {
-        console.error('Blog API error:', res.status, data);
-        throw new Error(data.message || `Server returned ${res.status}`);
-      }
-
-      const posts = (data.data || []).slice(0, 3);
-      if (!posts.length) return; // keep hardcoded fallback markup as-is
-
-      const html = posts.map((p, i) => `
-        <div class="news-card${i === 0 ? ' news-featured' : ''}" onclick="window.location.href='blog-post.html?slug=${encodeURIComponent(p.slug)}'">
-          <div class="news-img"><img class="news-photo" src="${p.featured_image_url || ''}" alt="${p.title}"></div>
-          <div class="news-body">
-            <div class="news-category">${p.category || ''}</div>
-            <h3 class="news-title">${p.title}</h3>
-            <p class="news-excerpt">${p.excerpt || ''}</p>
-            <div class="news-meta">${p.author || ''} · ${fmtLongDate(p.published_at)}</div>
-          </div>
-        </div>
-      `).join('');
-
-      applyHTML(grid, html);
-
-      // ── Guard: if any other script later overwrites #newsGrid
-      // (e.g. js/api.js re-rendering without images), restore our version.
-      const observer = new MutationObserver(function(){
-        if (applyingOwnUpdate) return; // ignore mutations we caused ourselves
-        if (!lastGoodHTML) return;
-        const currentImgs = grid.querySelectorAll('img.news-photo');
-        const stillHasRealImages = Array.from(currentImgs).some(function(img){
-          return img.getAttribute('src') && img.getAttribute('src') !== '';
-        });
-        if (!stillHasRealImages) {
-          applyHTML(grid, lastGoodHTML);
-        }
-      });
-      observer.observe(grid, { childList: true, subtree: true });
-
-    } catch (err) {
-      console.error('loadHomeNews failed:', err);
-      // silently keep the original hardcoded 3 articles as fallback
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', loadHomeNews);
-})();
-</script>
-
-     
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script src="js/supabase-config.js"></script>
 <script src="js/api.js" defer></script>
 </body>
 </html>

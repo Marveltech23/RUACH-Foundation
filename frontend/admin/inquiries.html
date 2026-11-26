@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inquiries — RUACH Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="admin-mobile-bar" id="adminMobileBar"></div>
+<div class="admin-shell">
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <div>
+        <div class="admin-eyebrow">Inbox</div>
+        <h1 class="admin-title">Contact &amp; Partnership Inquiries</h1>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title">Messages (<span id="inqCount">0</span>)</h2>
+        <select id="inqFilter" style="padding:8px 14px;border:1px solid rgba(11,61,46,.2);border-radius:3px;font-family:var(--sans);font-size:13px">
+          <option value="all">All Messages</option>
+          <option value="contact">Contact Form</option>
+          <option value="partnership">Partnership Inquiries</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Sender</th><th>Type</th><th>Subject / Org</th><th>Message</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody id="inqTableBody"><tr><td colspan="6" style="color:var(--text-muted)">Loading messages…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="admin.js"></script>
+<script>
+renderAdminChrome('inquiries');
+let sb = null;
+let inquiries = [];
+
+function renderInquiries() {
+  const filter = document.getElementById('inqFilter').value;
+  const list = filter === 'all' ? inquiries : inquiries.filter(i => i.type === filter);
+  document.getElementById('inqCount').textContent = list.length;
+
+  const tbody = document.getElementById('inqTableBody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text-muted)">No inquiries yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(m => `
+    <tr style="${m.is_read ? 'opacity:.72' : ''}">
+      <td><strong>${escHtml(m.full_name)}</strong><br><small style="color:var(--text-light)">${escHtml(m.email)}</small></td>
+      <td><span class="badge ${m.type === 'partnership' ? 'badge-gold' : 'badge-green'}">${escHtml(m.type)}</span></td>
+      <td>${escHtml(m.subject || '—')}${m.organization ? '<br><small style="color:var(--text-light)">' + escHtml(m.organization) + '</small>' : ''}</td>
+      <td style="max-width:340px;white-space:pre-wrap;line-height:1.5">${escHtml(m.message)}</td>
+      <td>${escHtml(fmtDate(m.created_at))}</td>
+      <td>
+        <div class="td-actions">
+          <button type="button" class="btn btn-outline btn-sm" onclick="toggleRead(${m.id}, ${Boolean(m.is_read)})">${m.is_read ? 'Unread' : 'Mark Read'}</button>
+          <button type="button" class="btn btn-danger btn-sm" onclick="deleteInquiry(${m.id})">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function toggleRead(id, current) {
+  const { error } = await sb.from('inquiries').update({ is_read: !current }).eq('id', id);
+  if (error) { showToast(error.message, 'error'); return; }
+  fetchInquiries();
+}
+
+async function deleteInquiry(id) {
+  if (!confirm('Delete this inquiry?')) return;
+  const { error } = await sb.from('inquiries').delete().eq('id', id);
+  if (error) { showToast(error.message, 'error'); return; }
+  showToast('Inquiry deleted.');
+  fetchInquiries();
+}
+
+async function fetchInquiries() {
+  const { data, error } = await sb.from('inquiries').select('*').order('created_at', { ascending: false });
+  if (error) { showToast(error.message, 'error'); return; }
+  inquiries = data || [];
+  renderInquiries();
+}
+
+document.getElementById('inqFilter').addEventListener('change', renderInquiries);
+
+document.addEventListener('DOMContentLoaded', async () => {
+  sb = await requireAdminAuth();
+  if (sb) fetchInquiries();
+});
+</script>
+</body>
+</html>
